@@ -1,0 +1,9 @@
+# Fichiers système Windows
+Thumbs.db
+desktop.ini
+
+# Fichiers VS Code
+.vscode/
+
+# Fichiers système Mac (au cas où)
+.DS_Store

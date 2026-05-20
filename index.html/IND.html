@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lumière Studio — Agence Créative</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap%22 rel="stylesheet"/>
+  <style>
+    /* ========================
+       VARIABLES & RESET
+    ======================== */
+    :root {
+      --noir:      #0e0e0e;
+      --creme:     #f5f0e8;
+      --or:        #c9a84c;
+      --or-clair:  #e8c97a;
+      --gris:      #6b6b6b;
+      --blanc:     #ffffff;
+    }
+ 
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }  
+ 
+    html { scroll-behavior: smooth; }
+ 
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--creme);
+      color: var(--noir);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+ 
+    /* ========================
+       NAVIGATION
+    ======================== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(245, 240, 232, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+    }
+ 
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--noir);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+ 
+    .nav-logo span { color: var(--or); }
+ 
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+ 
+    .nav-links a {
+      text-decoration: none;
+      color: var(--gris);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+ 
+    .nav-links a:hover { color: var(--or); }
+ 
+    .nav-cta {
+      background: var(--noir);
+      color: var(--creme) !important;
+      padding: 0.55rem 1.4rem;
+      border-radius: 2px;
+    }
+ 
+    .nav-cta:hover { background: var(--or); color: var(--noir) !important; }
+ 
+    /* ========================
+       HERO
+    ======================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 8rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+ 
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+ 
+    .hero-content { max-width: 680px; }
+ 
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--or);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--or);
+    }
+ 
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      line-height: 1.1;
+      color: var(--noir);
+      margin-bottom: 1.8rem;
+    }
+ 
+    .hero h1 em {
+      font-style: italic;
+      color: var(--or);
+    }
+ 
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--gris);
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+ 
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+ 
+    .btn-primary {
+      background: var(--noir);
+      color: var(--creme);
+      padding: 0.9rem 2.2rem;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: background 0.3s, transform 0.2s;
+    }
+ 
+    .btn-primary:hover { background: var(--or); color: var(--noir); transform: translateY(-2px); }
+ 
+    .btn-secondary {
+      color: var(--gris);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.3s;
+    }
+ 
+    .btn-secondary:hover { color: var(--or); }
+ 
+    .hero-image {
+      position: absolute;
+      right: 4rem; top: 50%;
+      transform: translateY(-50%);
+      width: 42%;
+      max-width: 520px;
+    }
+ 
+    .hero-image .image-box {
+      width: 100%;
+      padding-bottom: 120%;
+      background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #0e0e0e 100%);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+ 
+    .hero-image .image-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(201,168,76,0.04) 20px,
+        rgba(201,168,76,0.04) 21px
+      );
+    }
+ 
+    .image-caption {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: var(--gris);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: right;
+    }
+ 
+    /* ========================
+       SERVICES
+    ======================== */
+    .services {
+      padding: 7rem 4rem;
+      background: var(--noir);
+      color: var(--creme);
+    }
+ 
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+      gap: 2rem;
+    }
+ 
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--or);
+      margin-bottom: 0.8rem;
+    }
+ 
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.15;
+    }
+ 
+    .section-desc {
+      max-width: 360px;
+      color: #999;
+      font-size: 0.95rem;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+ 
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: #222;
+    }
+ 
+    .service-card {
+      background: var(--noir);
+      padding: 2.5rem;
+      transition: background 0.3s;
+    }
+ 
+    .service-card:hover { background: #161616; }
+ 
+    .service-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--or);
+      opacity: 0.3;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+ 
+    .service-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: var(--creme);
+    }
+ 
+    .service-card p {
+      font-size: 0.9rem;
+      color: #888;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+ 
+    /* ========================
+       À PROPOS
+    ======================== */
+    .about {
+      padding: 7rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+ 
+    .about-image .img-wrapper {
+      width: 100%;
+      padding-bottom: 110%;
+      background: linear-gradient(160deg, #ddd6c8 0%, #c8bfaf 100%);
+      border-radius: 4px;
+      position: relative;
+    }
+ 
+    .about-image .img-wrapper::before {
+      content: 'Photo';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      color: #999;
+      text-transform: uppercase;
+    }
+ 
+    .about-tag {
+      display: inline-block;
+      background: var(--or);
+      color: var(--noir);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.9rem;
+      border-radius: 1px;
+      margin-bottom: 1.5rem;
+    }
+ 
+    .about h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+ 
+    .about p {
+      color: var(--gris);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      font-weight: 300;
+      margin-bottom: 1.2rem;
+    }
+ 
+    .about-stats {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+ 
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      color: var(--or);
+      font-weight: 700;
+    }
+ 
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--gris);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+ 
+    /* ========================
+       CONTACT
+    ======================== */
+    .contact {
+      padding: 7rem 4rem;
+      background: var(--noir);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+ 
+    .contact-info .section-label { color: var(--or); }
+ 
+    .contact-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      color: var(--creme);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+ 
+    .contact-info p {
+      color: #888;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+ 
+    .contact-details { display: flex; flex-direction: column; gap: 1rem; }
+ 
+    .contact-item {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      color: #888;
+      font-size: 0.9rem;
+    }
+ 
+    .contact-item strong { color: var(--or); font-weight: 500; }
+ 
+    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+ 
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+ 
+    .form-group label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+    }
+ 
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: #161616;
+      border: 1px solid #2a2a2a;
+      color: var(--creme);
+      padding: 0.85rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+ 
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--or); }
+ 
+    .form-group textarea { resize: vertical; min-height: 120px; }
+ 
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+ 
+    .btn-submit {
+      background: var(--or);
+      color: var(--noir);
+      border: none;
+      padding: 1rem 2.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      align-self: flex-start;
+      transition: background 0.3s, transform 0.2s;
+    }
+ 
+    .btn-submit:hover { background: var(--or-clair); transform: translateY(-2px); }
+ 
+    /* ========================
+       FOOTER
+    ======================== */
+    footer {
+      background: #080808;
+      color: #555;
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+ 
+    footer .footer-logo {
+      font-family: 'Playfair Display', serif;
+      color: var(--creme);
+      font-size: 1.1rem;
+    }
+ 
+    footer .footer-logo span { color: var(--or); }
+  </style>
+</head>
+<body>
+ 
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="#" class="nav-logo">Aube<span>.</span>Propreté</a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#about">À propos</a></li>
+      <li><a href="#contact" class="nav-cta">Nous Contacter</a></li>
+    </ul>
+  </nav>
+ 
+  <!-- HERO -->
+  <section class="hero" id="accueil">
+    <div class="hero-content">
+      <span class="hero-eyebrow">Agence de nettoyage — Paris</span>
+      <h1>Nous intervenons<br>dans vos <em>locaux</em><br>pour les illuminer</h1>
+      <p class="hero-desc">Nettoyage, entretiens, multiservices.</p>
+      <div class="hero-btns">
+        <a href="#services" class="btn-primary">Nos services</a>
+        <a href="#contact" class="btn-secondary">Prendre contact →</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <div class="image-box"></div>
+      <p class="image-caption">Immersion - Nos interventions</p>
+    </div>
+  </section>
+ 
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="section-header">
+      <div>
+        <p class="section-label">Ce que nous faisons</p>
+        <h2 class="section-title">Nos domaines<br>d'expertise</h2>
+      </div>
+      <p class="section-desc"> Nous offrons des prestations de nettoyage de haute qualité, réalisées par nos agents expérimentés, dans la région de Montrouge ainsi que dans certains quartiers de Paris. Notre réputation irréprochable est soutenue par de nombreux commentaires positifs de nos clients satisfaits.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-number">01</div>
+        <h3>Nettoyage en profondeur</h3>
+        <p>Désinfection intensive à l’aide de désinfectants enregistrés et autorisés en France. Nous irons au delà pour faire le travail rapidement et efficacement.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">02</div>
+        <h3>désinfection et débarras</h3>
+        <p>Un espace entièrement désinfecté, indispensable pour maintenir un environnement sain et productif.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">03</div>
+        <h3>Nettoyage écologique</h3>
+        <p>Les services de nettoyage écologique minimisent notre impact sur la planète sans sacrifier la qualité de notre nettoyage.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">04</div>
+        <h3>Nettoyage de Sols, Tapis et de tissus d'ameublement</h3>
+        <p>Nos techniciens formés professionnellement utilisent un processus de nettoyage en 4 étapes conçu pour les différents types de sols, tapis et surfaces rembourrées.</p>
+    </div>
+  </section>
+ 
+  <!-- À PROPOS -->
+  <section class="about" id="about">
+    <div class="about-image">
+      <div class="img-wrapper"></div>
+    </div>
+    <div class="about-text">
+      <span class="about-tag">Votre satisfaction, notre obsession.</span>
+      <h2>Une équipe passionnée au service de votre vision</h2>
+      <p>En choisissant notre service, vous bénéficiez de prix compétitifs et d’une réponse rapide en moins de 24 heures. Une fois que vous avez essayé notre service, vous deviendrez un client fidèle. Qu’il s’agisse de nettoyer des bureaux, des locaux professionnels, un appartement, une maison, un immeuble résidentiel, des espaces communs, des sols, des tapis, des espaces verts, des parkings, des entrepôts, des débarras ou encore des opérations de désinfection, faites appel à nous.</p>
+      <p>Chez l’Aube Propreté, votre satisfaction est notre priorité absolue. Nous sommes impatients de collaborer avec vous et de réaliser votre projet selon vos besoins et vos exigences. Contactez nous dès maintenant et laissez nous vous offrir une solution sur mesure qui répondra à toutes vos attentes.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-value">300+</div>
+          <div class="stat-label">Sites nettoyés</div>
+        </div>
+        <div>
+          <div class="stat-value">15 ans</div>
+          <div class="stat-label">D'expérience</div>
+        </div>
+        <div>
+          <div class="stat-value">98%</div>
+          <div class="stat-label">Clients satisfaits</div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="contact-info">
+      <p class="section-label">Faites votre devis personnalisé</p>
+      <h2>Demandez votre devis gratuit personnalisé</h2>
+      <p>Si vous avez besoin d’un devis personnalisé, vous êtes au bon endroit. Remplissez simplement le formulaire ci-dessous et notre équipe dédiée vous fournira une offre compétitive et adaptée à vos besoins.</p>
+      <div class="contact-details">
+        <div class="contact-item"><strong>Email</strong> bonjour@groupe.aube</div>
+        <div class="contact-item"><strong>Téléphone</strong> +33 1 23 45 67 89</div>
+        <div class="contact-item"><strong>Adresse</strong> 7 Rue Gentilly 92120, Montrouge</div>
+      </div>
+    </div>
+    <!-- ⚠️ Remplacer VOTRE_EMAIL@GMAIL.COM par votre vraie adresse email -->
+    <form class="contact-form"
+          action="https://formsubmit.co/mickaelvp8@GMAIL.COM"
+          method="POST">
+ 
+      <!-- Options Formsubmit.co — pas besoin de compte, messages reçus par email -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_subject" value="Nouveau message — Lumière Studio">
+ 
+      <div class="form-row">
+        <div class="form-group">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" name="prenom" placeholder="Marie" required/>
+        </div>
+        <div class="form-group">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" name="nom" placeholder="Dupont" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Adresse e-mail</label>
+        <input type="email" id="email" name="email" placeholder="marie@exemple.fr" required/>
+      </div>
+      <div class="form-group">
+        <label for="sujet">Sujet</label>
+        <select id="sujet" name="sujet" required>
+          <option value="">Sélectionner un sujet...</option>
+          <option>Nettoyage en profondeur</option>
+          <option>Désinfection</option>
+          <option>Debarras</option>
+          <option>Nettoyage de Sols, Tapis et de tissus d'ameublement</option>
+          <option>Autre demande</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="message">Votre message</label>
+        <textarea id="message" name="message" placeholder="Décrivez votre projet en quelques mots..." required></textarea>
+      </div>
+      <button type="submit" class="btn-submit">Envoyer le message</button>
+    </form>
+  </section>
+ 
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">Groupe<span>.</span>Aube</span>
+    <span>© 2024 Groupe Aube — Tous droits réservés</span>
+  </footer>
+ 
+  <!-- ================================
+       JAVASCRIPT — Boutons & Formulaire
+  ================================= -->
+  <script>
+ 
+    // ── Formulaire de contact → envoi via Formsubmit.co ──
+    // Le formulaire s'envoie normalement vers Formsubmit
+    // Pas de preventDefault ici — on laisse le navigateur envoyer
+ 
+    // ── Bouton "Nos Services" → scroll vers services ──
+    document.querySelectorAll('a[href="#services"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('services').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+ 
+    // ── Bouton "Prendre contact" → scroll vers contact ──
+    document.querySelectorAll('a[href="#contact"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        // Mettre le focus sur le premier champ
+        setTimeout(() => { document.getElementById('prenom').focus(); }, 600);
+      });
+    });
+ 
+    // ── Bouton "À propos" → scroll vers about ──
+    document.querySelectorAll('a[href="#about"]').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+ 
+    // ── Navigation active au scroll ───────────────
+    window.addEventListener('scroll', function() {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > 50) {
+        nav.style.boxShadow = '0 2px 20px rgba(0,0,0,0.08)';
+      } else {
+        nav.style.boxShadow = 'none';
+      }
+    });
+ 
+  </script>
+ 
+</body>
+</html>
