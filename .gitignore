@@ -7,3 +7,5 @@ desktop.ini
 
 # Fichiers système Mac (au cas où)
 .DS_Store
+# Projet personnel séparé
+lumiere/
