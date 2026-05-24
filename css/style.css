@@ -1454,3 +1454,69 @@ input, textarea, select {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* ============================================
+   19. ANIMATIONS AU SCROLL
+   ============================================ */
+
+/* État initial : élément invisible et décalé vers le bas */
+.anim-hidden {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* État final : élément visible à sa place normale */
+.anim-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Navbar après défilement : plus compacte et avec ombre */
+.navbar.scrolled {
+    padding: 10px 40px;
+    box-shadow: 0 4px 20px rgba(10, 45, 94, 0.25);
+    background-color: #0f4e99;
+}
+
+/* Navbar après défilement : plus compacte et avec ombre */
+.navbar.scrolled {
+    padding: 10px 40px;
+    box-shadow: 0 4px 20px rgba(10, 45, 94, 0.25);
+    background-color: #0f4e99;
+}
+
+/* ============================================
+   20. MESSAGES DU FORMULAIRE
+   ============================================ */
+.form-message {
+    padding: 14px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 14px;
+    animation: slideIn 0.3s ease;
+}
+
+.form-message-succes {
+    background-color: var(--vert-clair);
+    color: var(--vert);
+    border: 1px solid var(--vert);
+}
+
+.form-message-erreur {
+    background-color: #ffeaea;
+    color: #c0392b;
+    border: 1px solid #e74c3c;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
