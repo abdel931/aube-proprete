@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon espace client — Aube Propreté Services</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR — Menu latéral -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-icon">💧</span>
+            <span>Aube <strong>Propreté</strong></span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="active">
+                <span class="nav-icon">🏠</span> Tableau de bord
+            </a>
+            <a href="interventions.html">
+                <span class="nav-icon">📋</span> Mes interventions
+            </a>
+            <a href="factures.html">
+                <span class="nav-icon">💰</span> Mes factures
+            </a>
+            <a href="rdv.html">
+                <span class="nav-icon">📅</span> Prendre un RDV
+            </a>
+            <a href="messagerie.html">
+                <span class="nav-icon">✉️</span> Messagerie
+            </a>
+            <a href="profil.html">
+                <span class="nav-icon">👤</span> Mon profil
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="../index.html">🌐 Retour au site</a>
+        </div>
+    </aside>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="dashboard-main">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>Tableau de bord</h1>
+            <div class="dashboard-header-right">
+                <div class="user-badge">
+                    <div class="user-avatar" id="user-initials">ML</div>
+                    <span class="user-name" id="user-name">Marie Leroy</span>
+                </div>
+                <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">
+                    Déconnexion
+                </a>
+            </div>
+        </div>
+
+        <!-- Contenu -->
+        <div class="dashboard-content">
+
+            <!-- Cartes statistiques -->
+            <div class="dashboard-stats">
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon">📋</div>
+                    <div class="dash-stat-value" id="nb-interventions">3</div>
+                    <div class="dash-stat-label">Interventions total</div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon">✅</div>
+                    <div class="dash-stat-value" id="nb-terminees">2</div>
+                    <div class="dash-stat-label">Interventions terminées</div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon">💰</div>
+                    <div class="dash-stat-value" id="total-factures">290€</div>
+                    <div class="dash-stat-label">Total des factures</div>
+                </div>
+                <div class="dash-stat-card">
+                    <div class="dash-stat-icon">⭐</div>
+                    <div class="dash-stat-value">4.9/5</div>
+                    <div class="dash-stat-label">Satisfaction moyenne</div>
+                </div>
+            </div>
+
+            <!-- Grille principale -->
+            <div class="dashboard-grid">
+
+                <!-- Widget interventions -->
+                <div class="dash-widget">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-title">Mes interventions récentes</span>
+                        <a href="interventions.html" class="dash-widget-link">Voir tout</a>
+                    </div>
+                    <div class="dash-widget-body">
+
+                        <!-- Prochaine intervention -->
+                        <div class="next-intervention">
+                            <div>
+                                <div class="next-intervention-label">Prochaine intervention</div>
+                                <div class="next-intervention-type">Ménage à domicile</div>
+                                <div class="next-intervention-date">📅 Lundi 26 mai 2026 · 09h00</div>
+                            </div>
+                            <div class="next-intervention-icon">🧹</div>
+                        </div>
+
+                        <!-- Liste interventions -->
+                        <div id="liste-interventions">
+
+                            <div class="intervention-row">
+                                <div class="intervention-info">
+                                    <div class="intervention-type">Nettoyage de vitres</div>
+                                    <div class="intervention-date">10 mai 2026</div>
+                                </div>
+                                <span class="statut-badge statut-terminee">Terminée</span>
+                            </div>
+
+                            <div class="intervention-row">
+                                <div class="intervention-info">
+                                    <div class="intervention-type">Grand ménage de printemps</div>
+                                    <div class="intervention-date">20 avril 2026</div>
+                                </div>
+                                <span class="statut-badge statut-terminee">Terminée</span>
+                            </div>
+
+                        </div>
+
+                        <a href="rdv.html" class="btn-nouvelle-demande">
+                            + Prendre un nouveau rendez-vous
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- Widget factures -->
+                <div class="dash-widget">
+                    <div class="dash-widget-header">
+                        <span class="dash-widget-title">Mes factures</span>
+                        <a href="factures.html" class="dash-widget-link">Voir tout</a>
+                    </div>
+                    <div class="dash-widget-body">
+
+                        <div class="facture-row">
+                            <div>
+                                <div class="facture-num">FAC-2026-001</div>
+                                <div class="facture-montant">80,00 €</div>
+                            </div>
+                            <span class="statut-badge statut-en-attente">En attente</span>
+                        </div>
+
+                        <div class="facture-row">
+                            <div>
+                                <div class="facture-num">FAC-2026-002</div>
+                                <div class="facture-montant">60,00 €</div>
+                            </div>
+                            <span class="statut-badge statut-payee">Payée</span>
+                        </div>
+
+                        <div class="facture-row">
+                            <div>
+                                <div class="facture-num">FAC-2026-003</div>
+                                <div class="facture-montant">150,00 €</div>
+                            </div>
+                            <span class="statut-badge statut-payee">Payée</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+</div>
+
+<script src="../js/dashboard.js"></script>
+</body>
+</html>

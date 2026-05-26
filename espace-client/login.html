@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion — Espace Client Aube Propreté</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="auth-body">
+
+    <!-- Lien retour au site -->
+    <a href="../index.html" class="auth-retour">
+        ← Retour au site
+    </a>
+
+    <div class="auth-container">
+
+        <!-- Logo -->
+        <div class="auth-logo">
+            <span class="logo-icon">💧</span>
+            <span class="auth-logo-text">Aube <strong>Propreté</strong> Services</span>
+        </div>
+
+        <!-- Carte de connexion -->
+        <div class="auth-card">
+            <h1 class="auth-title">Connexion</h1>
+            <p class="auth-subtitle">Accédez à votre espace personnel</p>
+
+            <div id="auth-message"></div>
+
+            <form id="login-form" class="auth-form">
+
+                <div class="form-group">
+                    <label for="email">Adresse email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="marie.leroy@email.fr"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="mot-de-passe">Mot de passe</label>
+                    <div class="input-password">
+                        <input
+                            type="password"
+                            id="mot-de-passe"
+                            name="mot_de_passe"
+                            placeholder="Votre mot de passe"
+                            required
+                        />
+                        <button type="button" id="toggle-password">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="souvenir" />
+                        Se souvenir de moi
+                    </label>
+                    <a href="#" class="lien-oublie">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="submit" class="btn-auth">
+                    Se connecter
+                </button>
+
+            </form>
+
+            <div class="auth-separator">
+                <span>Pas encore client ?</span>
+            </div>
+
+            <a href="inscription.html" class="btn-auth-outline">
+                Créer mon espace client
+            </a>
+
+        </div>
+
+        <!-- Info de test -->
+        <div class="auth-test-info">
+            <strong>🧪 Compte de test :</strong><br/>
+            Email : marie.leroy@email.fr<br/>
+            Mot de passe : password
+        </div>
+
+    </div>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>

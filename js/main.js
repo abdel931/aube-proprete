@@ -181,8 +181,8 @@ function initCompteurs() {
 }
 
 /* ============================================
-   5. FORMULAIRE DE CONTACT — Validation
-   Vérifie les champs avant l'envoi
+   5. FORMULAIRE DE CONTACT
+   Envoi des données vers le PHP via fetch()
    ============================================ */
 function initFormulaire() {
 
@@ -190,74 +190,56 @@ function initFormulaire() {
     if (!form) return;
 
     form.addEventListener('submit', function(e) {
-
-        // On empêche l'envoi par défaut du navigateur
         e.preventDefault();
 
-        // On récupère les valeurs des champs
-        const nom = form.querySelector('[name="nom"]').value.trim();
-        const email = form.querySelector('[name="email"]').value.trim();
+        const nom       = form.querySelector('[name="nom"]').value.trim();
+        const email     = form.querySelector('[name="email"]').value.trim();
         const telephone = form.querySelector('[name="telephone"]').value.trim();
         const prestation = form.querySelector('[name="prestation"]').value;
-        const message = form.querySelector('[name="message"]').value.trim();
+        const message   = form.querySelector('[name="message"]').value.trim();
 
-        // --- Validations ---
+        // Validations JS
+        if (nom.length < 2) { afficherMessage('❌ Nom invalide.', 'erreur'); return; }
+        if (!validerEmail(email)) { afficherMessage('❌ Email invalide.', 'erreur'); return; }
+        if (telephone.length < 10) { afficherMessage('❌ Téléphone invalide.', 'erreur'); return; }
+        if (!prestation) { afficherMessage('❌ Choisissez une prestation.', 'erreur'); return; }
+        if (message.length < 10) { afficherMessage('❌ Message trop court.', 'erreur'); return; }
 
-        if (nom.length < 2) {
-            afficherMessage('❌ Veuillez entrer votre nom complet.', 'erreur');
-            return;
-        }
+        // On désactive le bouton pendant l'envoi
+        const btnSubmit = form.querySelector('.btn-submit');
+        btnSubmit.textContent = 'Envoi en cours...';
+        btnSubmit.disabled = true;
 
-        if (!validerEmail(email)) {
-            afficherMessage('❌ Adresse email invalide.', 'erreur');
-            return;
-        }
+        // Préparation des données à envoyer
+        const formData = new FormData();
+        formData.append('nom', nom);
+        formData.append('email', email);
+        formData.append('telephone', telephone);
+        formData.append('prestation', prestation);
+        formData.append('message', message);
 
-        if (telephone.length < 10) {
-            afficherMessage('❌ Numéro de téléphone invalide.', 'erreur');
-            return;
-        }
-
-        if (!prestation) {
-            afficherMessage('❌ Veuillez choisir une prestation.', 'erreur');
-            return;
-        }
-
-        if (message.length < 10) {
-            afficherMessage('❌ Votre message est trop court.', 'erreur');
-            return;
-        }
-
-        // --- Si tout est valide ---
-        afficherMessage('✅ Message envoyé ! Nous vous répondons sous 24h.', 'succes');
-        form.reset();
+        // Envoi vers le PHP avec fetch()
+        fetch('/aube-proprete/php/contact.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.succes) {
+                afficherMessage('✅ ' + data.message, 'succes');
+                form.reset();
+            } else {
+                afficherMessage('❌ ' + data.message, 'erreur');
+            }
+        })
+        .catch(function() {
+            afficherMessage('❌ Erreur réseau. Vérifiez votre connexion.', 'erreur');
+        })
+        .finally(function() {
+            btnSubmit.textContent = 'Envoyer ma demande';
+            btnSubmit.disabled = false;
+        });
     });
-}
-
-/* Fonction utilitaire : valide le format email */
-function validerEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
-
-/* Fonction utilitaire : affiche un message de retour */
-function afficherMessage(texte, type) {
-
-    // Supprime l'ancien message s'il existe
-    const ancien = document.querySelector('.form-message');
-    if (ancien) ancien.remove();
-
-    // Crée le nouveau message
-    const message = document.createElement('div');
-    message.className = 'form-message form-message-' + type;
-    message.textContent = texte;
-
-    // L'insère après le formulaire
-    const form = document.getElementById('contact-form');
-    form.parentNode.insertBefore(message, form.nextSibling);
-
-    // Disparaît automatiquement après 5 secondes
-    setTimeout(function() {
-        message.remove();
-    }, 5000);
 }
