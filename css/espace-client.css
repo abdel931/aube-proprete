@@ -1,0 +1,661 @@
+/* ============================================
+   ESPACE CLIENT — Styles dédiés
+   Auteur : Abdel-Rahmane — Stage IPSSI Paris
+   ============================================ */
+
+
+/* ============================================
+   PAGES AUTH : Login & Inscription
+   ============================================ */
+.auth-body {
+    background-color: var(--bleu-clair);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.auth-retour {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 13px;
+    color: var(--bleu-moyen);
+    font-weight: 500;
+    transition: var(--transition);
+    background: var(--blanc);
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    box-shadow: var(--ombre);
+}
+
+.auth-retour:hover {
+    background: var(--bleu-moyen);
+    color: var(--blanc);
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 440px;
+}
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.auth-logo-text {
+    font-size: 18px;
+    color: var(--bleu-fonce);
+}
+
+.auth-logo-text strong {
+    color: var(--bleu-moyen);
+}
+
+.auth-card {
+    background: var(--blanc);
+    border: 1px solid var(--bleu-bordure);
+    border-radius: var(--radius-large);
+    padding: 36px 32px;
+    box-shadow: var(--ombre-forte);
+}
+
+.auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--texte-titre);
+    margin-bottom: 6px;
+}
+
+.auth-subtitle {
+    font-size: 13px;
+    color: var(--texte-corps);
+    margin-bottom: 24px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texte-titre);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    background: var(--bleu-tres-clair);
+    border: 1px solid var(--bleu-bordure);
+    border-radius: var(--radius-small);
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--texte-titre);
+    transition: var(--transition);
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--bleu-moyen);
+    box-shadow: 0 0 0 3px rgba(26, 107, 191, 0.15);
+    background: var(--blanc);
+}
+
+/* Champ mot de passe avec bouton œil */
+.input-password {
+    position: relative;
+}
+
+.input-password input {
+    padding-right: 48px;
+}
+
+.input-password button {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--texte-corps);
+    cursor: pointer;
+}
+
+.lien-oublie {
+    font-size: 12px;
+    color: var(--bleu-moyen);
+    font-weight: 500;
+}
+
+.lien-oublie:hover {
+    color: var(--bleu-fonce);
+}
+
+.btn-auth {
+    background: var(--bleu-moyen);
+    color: var(--blanc);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 13px;
+    border-radius: var(--radius-small);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    margin-top: 4px;
+}
+
+.btn-auth:hover {
+    background: var(--bleu-fonce);
+    transform: translateY(-2px);
+    box-shadow: var(--ombre-forte);
+}
+
+.btn-auth-outline {
+    display: block;
+    text-align: center;
+    background: transparent;
+    color: var(--bleu-moyen);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 13px;
+    border-radius: var(--radius-small);
+    border: 2px solid var(--bleu-moyen);
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+.btn-auth-outline:hover {
+    background: var(--bleu-moyen);
+    color: var(--blanc);
+}
+
+.auth-separator {
+    text-align: center;
+    margin: 20px 0 0;
+    position: relative;
+}
+
+.auth-separator span {
+    font-size: 12px;
+    color: var(--texte-leger);
+    background: var(--blanc);
+    padding: 0 12px;
+}
+
+.auth-test-info {
+    margin-top: 20px;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 12px;
+    color: #795548;
+    text-align: center;
+    line-height: 1.8;
+}
+
+/* Message d'erreur/succès auth */
+#auth-message {
+    margin-bottom: 16px;
+}
+
+.auth-message-erreur {
+    background: #ffeaea;
+    color: #c0392b;
+    border: 1px solid #e74c3c;
+    border-radius: var(--radius-small);
+    padding: 12px 16px;
+    font-size: 13px;
+}
+
+.auth-message-succes {
+    background: var(--vert-clair);
+    color: var(--vert);
+    border: 1px solid var(--vert);
+    border-radius: var(--radius-small);
+    padding: 12px 16px;
+    font-size: 13px;
+}
+
+
+/* ============================================
+   DASHBOARD — Tableau de bord client
+   ============================================ */
+.dashboard-body {
+    background: var(--bleu-clair);
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    background: var(--bleu-fonce);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+
+.sidebar-logo {
+    padding: 24px 20px;
+    border-bottom: 1px solid #1a3d6b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--blanc);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sidebar-logo strong {
+    color: #7ab8e8;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: #5a8ab0;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav a:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--blanc);
+    border-left-color: var(--bleu-moyen);
+}
+
+/* Lien actif dans la sidebar */
+.sidebar-nav a.active {
+    background: rgba(26, 107, 191, 0.2);
+    color: var(--blanc);
+    border-left-color: var(--bleu-moyen);
+    font-weight: 600;
+}
+
+.sidebar-nav .nav-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #1a3d6b;
+}
+
+.sidebar-footer a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #5a8ab0;
+    transition: var(--transition);
+}
+
+.sidebar-footer a:hover {
+    color: #e74c3c;
+}
+
+/* Contenu principal dashboard */
+.dashboard-main {
+    margin-left: 240px;
+    flex: 1;
+    padding: 0;
+}
+
+/* Header du dashboard */
+.dashboard-header {
+    background: var(--blanc);
+    border-bottom: 1px solid var(--bleu-bordure);
+    padding: 18px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.dashboard-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--texte-titre);
+}
+
+.dashboard-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bleu-tres-clair);
+    border: 1px solid var(--bleu-bordure);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--bleu-moyen);
+    color: var(--blanc);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texte-titre);
+}
+
+/* Contenu du dashboard */
+.dashboard-content {
+    padding: 32px;
+}
+
+/* Cartes de statistiques */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.dash-stat-card {
+    background: var(--blanc);
+    border: 1px solid var(--bleu-bordure);
+    border-radius: var(--radius-large);
+    padding: 20px;
+    transition: var(--transition);
+}
+
+.dash-stat-card:hover {
+    box-shadow: var(--ombre);
+    transform: translateY(-2px);
+}
+
+.dash-stat-icon {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.dash-stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--texte-titre);
+    margin-bottom: 4px;
+}
+
+.dash-stat-label {
+    font-size: 12px;
+    color: var(--texte-corps);
+}
+
+/* Grille principale du dashboard */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+}
+
+/* Widgets du dashboard */
+.dash-widget {
+    background: var(--blanc);
+    border: 1px solid var(--bleu-bordure);
+    border-radius: var(--radius-large);
+    overflow: hidden;
+}
+
+.dash-widget-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bleu-bordure);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dash-widget-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--texte-titre);
+}
+
+.dash-widget-link {
+    font-size: 12px;
+    color: var(--bleu-moyen);
+}
+
+.dash-widget-body {
+    padding: 16px 20px;
+}
+
+/* Lignes d'interventions */
+.intervention-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--bleu-bordure);
+    gap: 12px;
+}
+
+.intervention-row:last-child {
+    border-bottom: none;
+}
+
+.intervention-info {
+    flex: 1;
+}
+
+.intervention-type {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texte-titre);
+    margin-bottom: 3px;
+}
+
+.intervention-date {
+    font-size: 11px;
+    color: var(--texte-leger);
+}
+
+/* Badges de statut */
+.statut-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+.statut-planifiee {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.statut-terminee {
+    background: var(--vert-clair);
+    color: var(--vert);
+}
+
+.statut-annulee {
+    background: #ffeaea;
+    color: #c0392b;
+}
+
+/* Prochaine intervention mise en avant */
+.next-intervention {
+    background: var(--bleu-moyen);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.next-intervention-label {
+    font-size: 11px;
+    color: #a8d8ff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.next-intervention-type {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blanc);
+    margin-bottom: 4px;
+}
+
+.next-intervention-date {
+    font-size: 13px;
+    color: #cce4ff;
+}
+
+.next-intervention-icon {
+    font-size: 32px;
+}
+
+/* Bouton nouvelle demande */
+.btn-nouvelle-demande {
+    display: block;
+    text-align: center;
+    background: var(--bleu-clair);
+    border: 2px dashed var(--bleu-bordure);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-size: 13px;
+    color: var(--bleu-moyen);
+    font-weight: 500;
+    transition: var(--transition);
+    margin-top: 12px;
+}
+
+.btn-nouvelle-demande:hover {
+    background: var(--bleu-moyen);
+    color: var(--blanc);
+    border-color: var(--bleu-moyen);
+}
+
+/* Lignes de factures */
+.facture-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--bleu-bordure);
+}
+
+.facture-row:last-child {
+    border-bottom: none;
+}
+
+.facture-num {
+    font-size: 12px;
+    color: var(--texte-leger);
+    margin-bottom: 3px;
+}
+
+.facture-montant {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--texte-titre);
+}
+
+.statut-payee {
+    background: var(--vert-clair);
+    color: var(--vert);
+}
+
+.statut-en-attente {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+/* Responsive dashboard */
+@media (max-width: 1024px) {
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    .dashboard-main {
+        margin-left: 0;
+    }
+    .dashboard-content {
+        padding: 20px;
+    }
+    .dashboard-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+}
