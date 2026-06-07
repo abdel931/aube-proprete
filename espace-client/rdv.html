@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prendre un RDV — Aube Propreté</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+<div class="dashboard-layout">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-icon">💧</span>
+            <span>Aube <strong>Propreté</strong></span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><span class="nav-icon">🏠</span> Tableau de bord</a>
+            <a href="interventions.html"><span class="nav-icon">📋</span> Mes interventions</a>
+            <a href="factures.html"><span class="nav-icon">💰</span> Mes factures</a>
+            <a href="rdv.html" class="active"><span class="nav-icon">📅</span> Prendre un RDV</a>
+            <a href="messagerie.html"><span class="nav-icon">✉️</span> Messagerie</a>
+            <a href="profil.html"><span class="nav-icon">👤</span> Mon profil</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html">🌐 Retour au site</a>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Prendre un rendez-vous</h1>
+            <div class="dashboard-header-right">
+                <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="dash-widget" style="max-width:600px;">
+                <div class="dash-widget-header">
+                    <span class="dash-widget-title">📅 Nouvelle demande d'intervention</span>
+                </div>
+                <div class="dash-widget-body">
+                    <div id="rdv-message"></div>
+                    <form id="rdv-form" style="display:flex;flex-direction:column;gap:14px;">
+                        <div class="form-group">
+                            <label>Type de prestation</label>
+                            <select name="type_service" required style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;color:var(--texte-titre);">
+                                <option value="" disabled selected>Choisissez une prestation</option>
+                                <option value="Ménage à domicile">Ménage à domicile</option>
+                                <option value="Nettoyage de bureaux">Nettoyage de bureaux</option>
+                                <option value="Fin de chantier">Fin de chantier</option>
+                                <option value="Nettoyage de vitres">Nettoyage de vitres</option>
+                                <option value="Désinfection">Désinfection</option>
+                                <option value="Copropriété">Copropriété</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date souhaitée</label>
+                            <input type="date" name="date_intervention" required style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                        </div>
+                        <div class="form-group">
+                            <label>Heure souhaitée</label>
+                            <select name="heure" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;color:var(--texte-titre);">
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Note ou précisions</label>
+                            <textarea name="note" rows="3" placeholder="Décrivez votre besoin..." style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;resize:vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-auth">📅 Confirmer la demande</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('rdv-form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        fetch('http://localhost/aube-proprete/php/rdv.php', {method:'POST',body:formData})
+        .then(r => r.json())
+        .then(function(data) {
+            const zone = document.getElementById('rdv-message');
+            if (data.succes) {
+                zone.innerHTML = '<div class="auth-message-succes">✅ ' + data.message + '</div>';
+                form.reset();
+            } else {
+                zone.innerHTML = '<div class="auth-message-erreur">❌ ' + data.message + '</div>';
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mes factures — Aube Propreté</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo"><span class="logo-icon">💧</span><span>Aube <strong>Propreté</strong></span></div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><span class="nav-icon">🏠</span> Tableau de bord</a>
+            <a href="interventions.html"><span class="nav-icon">📋</span> Mes interventions</a>
+            <a href="factures.html" class="active"><span class="nav-icon">💰</span> Mes factures</a>
+            <a href="rdv.html"><span class="nav-icon">📅</span> Prendre un RDV</a>
+            <a href="messagerie.html"><span class="nav-icon">✉️</span> Messagerie</a>
+            <a href="profil.html"><span class="nav-icon">👤</span> Mon profil</a>
+        </nav>
+        <div class="sidebar-footer"><a href="../index.html">🌐 Retour au site</a></div>
+    </aside>
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Mes factures</h1>
+            <div class="dashboard-header-right">
+                <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="dash-widget">
+                <div class="dash-widget-header">
+                    <span class="dash-widget-title">Toutes mes factures</span>
+                </div>
+                <div class="dash-widget-body" id="toutes-factures">
+                    <p style="font-size:13px;color:#3a6a99;">Chargement...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+fetch('http://localhost/aube-proprete/php/get-dashboard.php')
+.then(r => r.json())
+.then(function(data) {
+    if (!data.succes) { window.location.href = 'login.html'; return; }
+    const zone = document.getElementById('toutes-factures');
+    if (data.factures.length === 0) {
+        zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune facture pour le moment.</p>';
+        return;
+    }
+    const badges = {'payee':'statut-payee','en_attente':'statut-en-attente','annulee':'statut-annulee'};
+    const labels = {'payee':'Payée','en_attente':'En attente','annulee':'Annulée'};
+    zone.innerHTML = data.factures.map(function(f, i) {
+        const num = 'FAC-2026-' + String(i+1).padStart(3,'0');
+        const date = new Date(f.date_facture).toLocaleDateString('fr-FR');
+        return `<div class="facture-row" style="padding:16px 0;">
+            <div>
+                <div class="facture-num">${num}</div>
+                <div class="facture-montant">${parseFloat(f.montant).toFixed(2)} €</div>
+                <div style="font-size:11px;color:#5a8ab0;">Émise le ${date}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+                <span class="statut-badge ${badges[f.statut] || ''}">${labels[f.statut] || f.statut}</span>
+                <span style="font-size:11px;color:#1a6bbf;cursor:pointer;">📄 Télécharger PDF</span>
+            </div>
+        </div>`;
+    }).join('');
+});
+</script>
+</body>
+</html>

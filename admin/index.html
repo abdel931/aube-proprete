@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel Admin — Aube Propreté Services</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+
+<!-- PAGE LOGIN ADMIN -->
+<div id="admin-login" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bleu-clair);">
+    <div style="width:360px;">
+        <div class="auth-card">
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:36px;">🔐</div>
+                <h2 style="font-size:18px;color:var(--texte-titre);">Administration</h2>
+                <p style="font-size:13px;color:var(--texte-corps);">Aube Propreté Services</p>
+            </div>
+            <div id="admin-login-msg"></div>
+            <form id="admin-login-form" style="display:flex;flex-direction:column;gap:14px;">
+                <div class="form-group">
+                    <label>Login</label>
+                    <input type="text" name="login" value="admin" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" name="password" value="admin2026" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                </div>
+                <button type="submit" class="btn-auth">Se connecter</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- PANEL ADMIN -->
+<div id="admin-panel" style="display:none;">
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-icon">🔐</span>
+            <span>Admin <strong>Panel</strong></span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="active" onclick="showSection('contacts')"><span class="nav-icon">📧</span> Demandes contact</a>
+            <a href="#" onclick="showSection('clients')"><span class="nav-icon">👥</span> Clients</a>
+            <a href="#" onclick="showSection('interventions')"><span class="nav-icon">📋</span> Interventions</a>
+            <a href="#" onclick="showSection('factures')"><span class="nav-icon">💰</span> Factures</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.html">🌐 Retour au site</a>
+        </div>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1 id="admin-section-title">Demandes de contact</h1>
+            <div class="dashboard-header-right">
+                <span style="font-size:13px;color:#1a6bbf;font-weight:600;">🔐 Admin connecté</span>
+            </div>
+        </div>
+        <div class="dashboard-content">
+
+            <!-- Stats -->
+            <div class="dashboard-stats" id="admin-stats">
+                <div class="dash-stat-card"><div class="dash-stat-icon">📧</div><div class="dash-stat-value" id="stat-contacts">--</div><div class="dash-stat-label">Demandes reçues</div></div>
+                <div class="dash-stat-card"><div class="dash-stat-icon">👥</div><div class="dash-stat-value" id="stat-clients">--</div><div class="dash-stat-label">Clients inscrits</div></div>
+                <div class="dash-stat-card"><div class="dash-stat-icon">📋</div><div class="dash-stat-value" id="stat-interventions">--</div><div class="dash-stat-label">Interventions</div></div>
+                <div class="dash-stat-card"><div class="dash-stat-icon">💰</div><div class="dash-stat-value" id="stat-factures">--</div><div class="dash-stat-label">Factures</div></div>
+            </div>
+
+            <!-- Section contacts -->
+            <div id="section-contacts" class="dash-widget">
+                <div class="dash-widget-header"><span class="dash-widget-title">📧 Demandes de contact reçues</span></div>
+                <div class="dash-widget-body" id="table-contacts">Chargement...</div>
+            </div>
+
+            <!-- Section clients -->
+            <div id="section-clients" class="dash-widget" style="display:none;">
+                <div class="dash-widget-header"><span class="dash-widget-title">👥 Clients inscrits</span></div>
+                <div class="dash-widget-body" id="table-clients">Chargement...</div>
+            </div>
+
+            <!-- Section interventions -->
+            <div id="section-interventions" class="dash-widget" style="display:none;">
+                <div class="dash-widget-header"><span class="dash-widget-title">📋 Toutes les interventions</span></div>
+                <div class="dash-widget-body" id="table-interventions">Chargement...</div>
+            </div>
+
+            <!-- Section factures -->
+            <div id="section-factures" class="dash-widget" style="display:none;">
+                <div class="dash-widget-header"><span class="dash-widget-title">💰 Toutes les factures</span></div>
+                <div class="dash-widget-body" id="table-factures">Chargement...</div>
+            </div>
+
+        </div>
+    </main>
+</div>
+</div>
+
+<style>
+.admin-table { width:100%; border-collapse:collapse; font-size:13px; }
+.admin-table th { background:var(--bleu-tres-clair); color:var(--texte-titre); font-weight:600; padding:10px 12px; text-align:left; border-bottom:2px solid var(--bleu-bordure); }
+.admin-table td { padding:10px 12px; border-bottom:1px solid var(--bleu-bordure); color:var(--texte-corps); vertical-align:top; }
+.admin-table tr:hover td { background:var(--bleu-clair); }
+</style>
+
+<script>
+let adminData = null;
+
+document.getElementById('admin-login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('http://localhost/aube-proprete/php/admin-data.php', {method:'POST', body:formData})
+    .then(r => r.json())
+    .then(function(data) {
+        if (data.succes) {
+            document.getElementById('admin-login').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            chargerDonnees();
+        } else {
+            document.getElementById('admin-login-msg').innerHTML = '<div class="auth-message-erreur">❌ Identifiants incorrects.</div>';
+        }
+    });
+});
+
+function chargerDonnees() {
+    fetch('http://localhost/aube-proprete/php/admin-data.php')
+    .then(r => r.json())
+    .then(function(data) {
+        if (!data.succes) return;
+        adminData = data;
+
+        document.getElementById('stat-contacts').textContent = data.stats.nb_contacts;
+        document.getElementById('stat-clients').textContent = data.stats.nb_clients;
+        document.getElementById('stat-interventions').textContent = data.stats.nb_interventions;
+        document.getElementById('stat-factures').textContent = data.stats.nb_factures;
+
+        // Contacts
+        document.getElementById('table-contacts').innerHTML = data.contacts.length === 0
+            ? '<p style="font-size:13px;color:#3a6a99;">Aucune demande reçue.</p>'
+            : '<table class="admin-table"><thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Prestation</th><th>Message</th><th>Date</th><th>Statut</th></tr></thead><tbody>'
+            + data.contacts.map(c => `<tr>
+                <td><strong>${c.nom}</strong></td>
+                <td>${c.email}</td>
+                <td>${c.telephone}</td>
+                <td>${c.prestation}</td>
+                <td style="max-width:200px;">${c.message}</td>
+                <td>${new Date(c.date_envoi).toLocaleDateString('fr-FR')}</td>
+                <td><span class="statut-badge ${c.statut==='nouveau'?'statut-planifiee':'statut-terminee'}">${c.statut}</span></td>
+            </tr>`).join('')
+            + '</tbody></table>';
+
+        // Clients
+        document.getElementById('table-clients').innerHTML = data.clients.length === 0
+            ? '<p style="font-size:13px;color:#3a6a99;">Aucun client inscrit.</p>'
+            : '<table class="admin-table"><thead><tr><th>Nom</th><th>Prénom</th><th>Email</th><th>Téléphone</th><th>Inscription</th></tr></thead><tbody>'
+            + data.clients.map(c => `<tr>
+                <td><strong>${c.nom}</strong></td>
+                <td>${c.prenom}</td>
+                <td>${c.email}</td>
+                <td>${c.telephone || '-'}</td>
+                <td>${new Date(c.date_inscription).toLocaleDateString('fr-FR')}</td>
+            </tr>`).join('')
+            + '</tbody></table>';
+
+        // Interventions
+        document.getElementById('table-interventions').innerHTML = data.interventions.length === 0
+            ? '<p style="font-size:13px;color:#3a6a99;">Aucune intervention.</p>'
+            : '<table class="admin-table"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Heure</th><th>Prix</th><th>Statut</th></tr></thead><tbody>'
+            + data.interventions.map(i => `<tr>
+                <td><strong>${i.prenom} ${i.nom}</strong></td>
+                <td>${i.type_service}</td>
+                <td>${new Date(i.date_intervention).toLocaleDateString('fr-FR')}</td>
+                <td>${i.heure || '-'}</td>
+                <td>${i.prix ? parseFloat(i.prix).toFixed(2) + '€' : '-'}</td>
+                <td><span class="statut-badge ${i.statut==='terminee'?'statut-terminee':i.statut==='planifiee'?'statut-planifiee':'statut-annulee'}">${i.statut}</span></td>
+            </tr>`).join('')
+            + '</tbody></table>';
+
+        // Factures
+        document.getElementById('table-factures').innerHTML = data.factures.length === 0
+            ? '<p style="font-size:13px;color:#3a6a99;">Aucune facture.</p>'
+            : '<table class="admin-table"><thead><tr><th>Client</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead><tbody>'
+            + data.factures.map(f => `<tr>
+                <td><strong>${f.prenom} ${f.nom}</strong></td>
+                <td><strong>${parseFloat(f.montant).toFixed(2)} €</strong></td>
+                <td>${new Date(f.date_facture).toLocaleDateString('fr-FR')}</td>
+                <td><span class="statut-badge ${f.statut==='payee'?'statut-payee':'statut-en-attente'}">${f.statut==='payee'?'Payée':'En attente'}</span></td>
+            </tr>`).join('')
+            + '</tbody></table>';
+    });
+}
+
+function showSection(name) {
+    ['contacts','clients','interventions','factures'].forEach(s => {
+        document.getElementById('section-'+s).style.display = s === name ? 'block' : 'none';
+    });
+    const titles = {contacts:'Demandes de contact',clients:'Clients inscrits',interventions:'Interventions',factures:'Factures'};
+    document.getElementById('admin-section-title').textContent = titles[name];
+}
+</script>
+</body>
+</html>

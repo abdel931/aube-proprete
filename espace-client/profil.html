@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon profil — Aube Propreté</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo"><span class="logo-icon">💧</span><span>Aube <strong>Propreté</strong></span></div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><span class="nav-icon">🏠</span> Tableau de bord</a>
+            <a href="interventions.html"><span class="nav-icon">📋</span> Mes interventions</a>
+            <a href="factures.html"><span class="nav-icon">💰</span> Mes factures</a>
+            <a href="rdv.html"><span class="nav-icon">📅</span> Prendre un RDV</a>
+            <a href="messagerie.html"><span class="nav-icon">✉️</span> Messagerie</a>
+            <a href="profil.html" class="active"><span class="nav-icon">👤</span> Mon profil</a>
+        </nav>
+        <div class="sidebar-footer"><a href="../index.html">🌐 Retour au site</a></div>
+    </aside>
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Mon profil</h1>
+            <div class="dashboard-header-right">
+                <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="dash-widget" style="max-width:600px;">
+                <div class="dash-widget-header">
+                    <span class="dash-widget-title">👤 Mes informations</span>
+                </div>
+                <div class="dash-widget-body">
+                    <div id="profil-message"></div>
+                    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:var(--bleu-clair);border-radius:var(--radius);">
+                        <div id="profil-avatar" style="width:60px;height:60px;background:var(--bleu-moyen);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;">--</div>
+                        <div>
+                            <div id="profil-nom" style="font-size:18px;font-weight:600;color:var(--texte-titre);">Chargement...</div>
+                            <div id="profil-email" style="font-size:13px;color:var(--texte-corps);"></div>
+                        </div>
+                    </div>
+                    <form id="profil-form" style="display:flex;flex-direction:column;gap:14px;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div class="form-group">
+                                <label>Prénom</label>
+                                <input type="text" name="prenom" id="input-prenom" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                            </div>
+                            <div class="form-group">
+                                <label>Nom</label>
+                                <input type="text" name="nom" id="input-nom" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Téléphone</label>
+                            <input type="tel" name="telephone" id="input-tel" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                        </div>
+                        <div class="form-group">
+                            <label>Adresse</label>
+                            <input type="text" name="adresse" id="input-adresse" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                        </div>
+                        <button type="submit" class="btn-auth">💾 Sauvegarder les modifications</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+fetch('http://localhost/aube-proprete/php/get-dashboard.php')
+.then(r => r.json())
+.then(function(data) {
+    if (!data.succes) { window.location.href = 'login.html'; return; }
+    const c = data.client;
+    const initiales = c.prenom[0].toUpperCase() + c.nom[0].toUpperCase();
+    document.getElementById('profil-avatar').textContent = initiales;
+    document.getElementById('profil-nom').textContent = c.prenom + ' ' + c.nom;
+    document.getElementById('profil-email').textContent = c.email;
+    document.getElementById('input-prenom').value = c.prenom;
+    document.getElementById('input-nom').value = c.nom;
+    document.getElementById('input-tel').value = c.telephone || '';
+});
+
+document.getElementById('profil-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('profil-message').innerHTML = '<div class="auth-message-succes">✅ Profil mis à jour !</div>';
+});
+</script>
+</body>
+</html>

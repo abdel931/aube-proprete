@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mes interventions — Aube Propreté</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo"><span class="logo-icon">💧</span><span>Aube <strong>Propreté</strong></span></div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><span class="nav-icon">🏠</span> Tableau de bord</a>
+            <a href="interventions.html" class="active"><span class="nav-icon">📋</span> Mes interventions</a>
+            <a href="factures.html"><span class="nav-icon">💰</span> Mes factures</a>
+            <a href="rdv.html"><span class="nav-icon">📅</span> Prendre un RDV</a>
+            <a href="messagerie.html"><span class="nav-icon">✉️</span> Messagerie</a>
+            <a href="profil.html"><span class="nav-icon">👤</span> Mon profil</a>
+        </nav>
+        <div class="sidebar-footer"><a href="../index.html">🌐 Retour au site</a></div>
+    </aside>
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Mes interventions</h1>
+            <div class="dashboard-header-right">
+                <a href="rdv.html" class="btn-devis" style="background:var(--bleu-moyen);color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;">+ Nouveau RDV</a>
+                <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="dash-widget">
+                <div class="dash-widget-header">
+                    <span class="dash-widget-title">Toutes mes interventions</span>
+                </div>
+                <div class="dash-widget-body" id="toutes-interventions">
+                    <p style="font-size:13px;color:#3a6a99;">Chargement...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+fetch('http://localhost/aube-proprete/php/get-dashboard.php')
+.then(r => r.json())
+.then(function(data) {
+    if (!data.succes) { window.location.href = 'login.html'; return; }
+    const zone = document.getElementById('toutes-interventions');
+    if (data.interventions.length === 0) {
+        zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune intervention. <a href="rdv.html">Prendre un RDV →</a></p>';
+        return;
+    }
+    const badges = {'planifiee':'statut-planifiee','terminee':'statut-terminee','annulee':'statut-annulee'};
+    const labels = {'planifiee':'Planifiée','terminee':'Terminée','annulee':'Annulée'};
+    zone.innerHTML = data.interventions.map(function(i) {
+        const date = new Date(i.date_intervention).toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+        return `<div class="intervention-row">
+            <div class="intervention-info">
+                <div class="intervention-type">${i.type_service}</div>
+                <div class="intervention-date">📅 ${date} · ${i.heure || ''} ${i.prix ? '· ' + parseFloat(i.prix).toFixed(2) + '€' : ''}</div>
+                ${i.note ? '<div style="font-size:11px;color:#5a8ab0;margin-top:3px;">📝 ' + i.note + '</div>' : ''}
+            </div>
+            <span class="statut-badge ${badges[i.statut] || ''}">${labels[i.statut] || i.statut}</span>
+        </div>`;
+    }).join('');
+});
+</script>
+</body>
+</html>

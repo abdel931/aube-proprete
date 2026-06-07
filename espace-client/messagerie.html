@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messagerie — Aube Propreté</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/espace-client.css" />
+</head>
+<body class="dashboard-body">
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-logo"><span class="logo-icon">💧</span><span>Aube <strong>Propreté</strong></span></div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><span class="nav-icon">🏠</span> Tableau de bord</a>
+            <a href="interventions.html"><span class="nav-icon">📋</span> Mes interventions</a>
+            <a href="factures.html"><span class="nav-icon">💰</span> Mes factures</a>
+            <a href="rdv.html"><span class="nav-icon">📅</span> Prendre un RDV</a>
+            <a href="messagerie.html" class="active"><span class="nav-icon">✉️</span> Messagerie</a>
+            <a href="profil.html"><span class="nav-icon">👤</span> Mon profil</a>
+        </nav>
+        <div class="sidebar-footer"><a href="../index.html">🌐 Retour au site</a></div>
+    </aside>
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Messagerie</h1>
+            <div class="dashboard-header-right">
+                <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="dash-widget">
+                <div class="dash-widget-header">
+                    <span class="dash-widget-title">✉️ Envoyer un message à notre équipe</span>
+                </div>
+                <div class="dash-widget-body">
+                    <div id="msg-message"></div>
+                    <div style="background:var(--bleu-clair);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+                        <div style="font-size:12px;color:#3a6a99;margin-bottom:4px;">📨 Message de l'équipe Aube Propreté</div>
+                        <div style="font-size:13px;color:var(--texte-titre);">Bonjour ! Bienvenue dans votre espace messagerie. N'hésitez pas à nous contacter pour toute question concernant vos interventions ou factures.</div>
+                        <div style="font-size:11px;color:#7ab8e8;margin-top:6px;">Il y a 2 jours</div>
+                    </div>
+                    <form id="msg-form" style="display:flex;flex-direction:column;gap:12px;">
+                        <input type="text" name="sujet" placeholder="Sujet de votre message" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
+                        <textarea name="contenu" rows="4" placeholder="Votre message..." style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;resize:vertical;"></textarea>
+                        <button type="submit" class="btn-auth">📤 Envoyer le message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+document.getElementById('msg-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('msg-message').innerHTML = '<div class="auth-message-succes">✅ Message envoyé ! Notre équipe vous répondra sous 24h.</div>';
+    this.reset();
+});
+</script>
+</body>
+</html>
