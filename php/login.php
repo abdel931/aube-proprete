@@ -1,6 +1,9 @@
 <?php
 header('Content-Type: application/json');
 session_start();
+session_unset();
+session_destroy();
+session_start();
 require_once 'connexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -12,9 +15,6 @@ $mot_de_passe = $_POST['mot_de_passe'] ?? '';
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     die(json_encode(['succes' => false, 'message' => 'Email invalide.']));
-}
-if (empty($mot_de_passe)) {
-    die(json_encode(['succes' => false, 'message' => 'Mot de passe manquant.']));
 }
 
 try {
@@ -36,8 +36,6 @@ try {
     } else {
         echo json_encode(['succes' => false, 'message' => 'Email ou mot de passe incorrect.']);
     }
-
 } catch (PDOException $e) {
-    http_response_code(500);
     echo json_encode(['succes' => false, 'message' => 'Erreur serveur.']);
 }
