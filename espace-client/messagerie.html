@@ -29,33 +29,90 @@
             </div>
         </div>
         <div class="dashboard-content">
-            <div class="dash-widget">
+
+            <!-- Messages reçus -->
+            <div class="dash-widget" style="margin-bottom:20px;">
                 <div class="dash-widget-header">
-                    <span class="dash-widget-title">✉️ Envoyer un message à notre équipe</span>
+                    <span class="dash-widget-title">📨 Messages reçus</span>
+                    <button onclick="chargerMessages()" style="font-size:11px;color:#1a6bbf;background:none;border:none;cursor:pointer;">🔄 Actualiser</button>
+                </div>
+                <div class="dash-widget-body" id="liste-messages">
+                    <p style="font-size:13px;color:#3a6a99;">Chargement...</p>
+                </div>
+            </div>
+
+            <!-- Nouveau message -->
+            <div class="dash-widget" style="max-width:600px;">
+                <div class="dash-widget-header">
+                    <span class="dash-widget-title">✉️ Envoyer un message</span>
                 </div>
                 <div class="dash-widget-body">
-                    <div id="msg-message"></div>
-                    <div style="background:var(--bleu-clair);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-                        <div style="font-size:12px;color:#3a6a99;margin-bottom:4px;">📨 Message de l'équipe Aube Propreté</div>
-                        <div style="font-size:13px;color:var(--texte-titre);">Bonjour ! Bienvenue dans votre espace messagerie. N'hésitez pas à nous contacter pour toute question concernant vos interventions ou factures.</div>
-                        <div style="font-size:11px;color:#7ab8e8;margin-top:6px;">Il y a 2 jours</div>
-                    </div>
-                    <form id="msg-form" style="display:flex;flex-direction:column;gap:12px;">
-                        <input type="text" name="sujet" placeholder="Sujet de votre message" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;" />
-                        <textarea name="contenu" rows="4" placeholder="Votre message..." style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;resize:vertical;"></textarea>
-                        <button type="submit" class="btn-auth">📤 Envoyer le message</button>
+                    <div id="msg-envoi"></div>
+                    <form id="form-message" style="display:flex;flex-direction:column;gap:12px;">
+                        <div class="form-group">
+                            <label>Sujet</label>
+                            <input type="text" name="sujet" placeholder="Ex: Question sur mon intervention" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;font-family:inherit;" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea name="contenu" rows="5" placeholder="Votre message à l'équipe..." style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;resize:vertical;font-family:inherit;" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-auth">📤 Envoyer</button>
                     </form>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
 <script>
-document.getElementById('msg-form').addEventListener('submit', function(e) {
+function chargerMessages() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost/aube-proprete/php/messages.php?action=liste');
+    xhr.onload = function() {
+        var data = JSON.parse(xhr.responseText);
+        if (!data.succes) { window.location.href = 'login.html'; return; }
+        var zone = document.getElementById('liste-messages');
+        if (!data.messages.length) {
+            zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucun message pour le moment.</p>';
+            return;
+        }
+        zone.innerHTML = data.messages.map(function(m) {
+            var isAdmin = m.expediteur === 'admin';
+            var date = new Date(m.date_envoi).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            return '<div style="padding:14px;margin-bottom:10px;border-radius:10px;background:' + (isAdmin ? 'var(--bleu-clair)' : '#f0f8f0') + ';border:1px solid ' + (isAdmin ? 'var(--bleu-bordure)' : '#c5e8d5') + ';' + (!m.lu && isAdmin ? 'border-left:3px solid #1a6bbf;' : '') + '">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+            + '<strong style="font-size:13px;color:var(--texte-titre);">' + (isAdmin ? '🔐 Aube Propreté Services' : '👤 Vous') + ' — ' + m.sujet + '</strong>'
+            + '<span style="font-size:10px;color:var(--texte-leger);">' + date + '</span>'
+            + '</div>'
+            + '<p style="font-size:13px;color:var(--texte-corps);line-height:1.6;">' + m.contenu + '</p>'
+            + (!m.lu && isAdmin ? '<span style="font-size:10px;background:#e6f1fb;color:#1a6bbf;padding:2px 8px;border-radius:10px;">Nouveau</span>' : '')
+            + '</div>';
+        }).join('');
+    };
+    xhr.send();
+}
+
+document.getElementById('form-message').addEventListener('submit', function(e) {
     e.preventDefault();
-    document.getElementById('msg-message').innerHTML = '<div class="auth-message-succes">✅ Message envoyé ! Notre équipe vous répondra sous 24h.</div>';
-    this.reset();
+    var fd = new FormData(this);
+    fd.append('action', 'envoyer');
+    var btn = this.querySelector('button');
+    btn.textContent = 'Envoi...';
+    btn.disabled = true;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost/aube-proprete/php/messages.php');
+    xhr.onload = function() {
+        var data = JSON.parse(xhr.responseText);
+        document.getElementById('msg-envoi').innerHTML = '<div class="auth-message-' + (data.succes?'succes':'erreur') + '" style="margin-bottom:12px;">' + (data.succes?'✅':'❌') + ' ' + data.message + '</div>';
+        if (data.succes) { document.getElementById('form-message').reset(); chargerMessages(); }
+        btn.textContent = 'Envoyer';
+        btn.disabled = false;
+    };
+    xhr.send(fd);
 });
+
+chargerMessages();
 </script>
 </body>
 </html>
