@@ -246,286 +246,377 @@
 
 <script>
 var adminData = null;
+var SESSION_OK = false;
 
-// 1. CONNEXION
+// ============ LOGIN ============
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
     var fd = new FormData(this);
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'http://localhost/aube-proprete/php/admin-data.php');
+    xhr.withCredentials = true;
     xhr.onload = function() {
-        var data = JSON.parse(xhr.responseText);
-        if (data.succes) {
-            document.getElementById('admin-login').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            chargerDonnees();
-        } else {
-            document.getElementById('login-msg').innerHTML = '<div class="auth-message-erreur">Identifiants incorrects.</div>';
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (data.succes) {
+                SESSION_OK = true;
+                document.getElementById('admin-login').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                chargerDonnees();
+            } else {
+                document.getElementById('login-msg').innerHTML = '<div class="auth-message-erreur">❌ ' + data.message + '</div>';
+            }
+        } catch(e) {
+            document.getElementById('login-msg').innerHTML = '<div class="auth-message-erreur">❌ Erreur de connexion.</div>';
         }
+    };
+    xhr.onerror = function() {
+        document.getElementById('login-msg').innerHTML = '<div class="auth-message-erreur">❌ XAMPP est-il lancé ?</div>';
     };
     xhr.send(fd);
 });
 
-// 2. CHARGEMENT DES DONNÉES
+// ============ CHARGER DONNÉES ============
 function chargerDonnees() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'http://localhost/aube-proprete/php/admin-data.php');
+    xhr.withCredentials = true;
     xhr.onload = function() {
-        var data = JSON.parse(xhr.responseText);
-        if (!data.succes) return;
-        adminData = data;
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (!data.succes) {
+                if (data.redirect) {
+                    document.getElementById('admin-panel').style.display = 'none';
+                    document.getElementById('admin-login').style.display = 'flex';
+                }
+                return;
+            }
+            adminData = data;
 
-        // Stats
-        document.getElementById('s-contacts').textContent = data.stats.nb_contacts;
-        document.getElementById('s-clients').textContent = data.stats.nb_clients;
-        document.getElementById('s-inter').textContent = data.stats.nb_interventions;
-        document.getElementById('s-candi').textContent = data.stats.nb_candidatures;
+            // Stats
+            document.getElementById('s-contacts').textContent = data.stats.nb_contacts;
+            document.getElementById('s-clients').textContent = data.stats.nb_clients;
+            document.getElementById('s-inter').textContent = data.stats.nb_interventions;
+            document.getElementById('s-candi').textContent = data.stats.nb_candidatures;
 
-        // Badge messages non lus
-        if (data.stats.non_lus > 0) {
+            // Badge messages non lus
             var badge = document.getElementById('badge-messages');
-            badge.textContent = data.stats.non_lus;
-            badge.style.display = 'inline';
+            if (data.stats.non_lus > 0) {
+                badge.textContent = data.stats.non_lus;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            // Selects clients
+            var opts = '<option value="">Choisir un client</option>' +
+                data.clients.map(function(c) {
+                    return '<option value="' + c.id + '">' + c.prenom + ' ' + c.nom + '</option>';
+                }).join('');
+            document.getElementById('select-client').innerHTML = opts;
+            document.getElementById('select-client-facture').innerHTML = opts;
+
+            renderContacts(data.contacts);
+            renderMessages(data.messages);
+            renderClients(data.clients);
+            renderInterventions(data.interventions);
+            renderFactures(data.factures);
+            renderCandidatures(data.candidatures);
+            afficherGraphiques(data.interventions, data.factures);
+            document.getElementById('graphs-container').style.display = 'grid';
+        } catch(err) {
+            console.error('Erreur parsing:', err, xhr.responseText);
         }
-
-        // Remplir selects clients
-        var opts = data.clients.map(function(c) {
-            return '<option value="' + c.id + '">' + c.prenom + ' ' + c.nom + '</option>';
-        }).join('');
-        document.getElementById('select-client').innerHTML = '<option value="">Choisir un client</option>' + opts;
-        document.getElementById('select-client-facture').innerHTML = '<option value="">Choisir un client</option>' + opts;
-
-        // Affichage des Tableaux
-        renderContacts(data.contacts);
-        renderMessages(data.messages);
-        renderClients(data.clients);
-        renderInterventions(data.interventions);
-        renderFactures(data.factures);
-        renderCandidatures(data.candidatures);
-
-        // === AJOUT CLAUDE : APPEL DES GRAPHIQUES ===
-        afficherGraphiques(data.interventions, data.factures);
-        document.getElementById('graphs-container').style.display = 'grid';
     };
     xhr.send();
 }
 
-// 3. FONCTION DE GÉNÉRATION DES GRAPHIQUES (CHART.JS)
-function afficherGraphiques(interventions, factures) {
-    var mois = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-    var interParMois = new Array(12).fill(0);
-    var revenusParMois = new Array(12).fill(0);
-
-    interventions.forEach(function(i) {
-        var m = new Date(i.date_intervention).getMonth();
-        interParMois[m]++;
-    });
-
-    factures.forEach(function(f) {
-        if (f.statut === 'payee') {
-            var m = new Date(f.date_facture).getMonth();
-            revenusParMois[m] += parseFloat(f.montant);
-        }
-    });
-
-    // Graphique des Interventions
-    new Chart(document.getElementById('chart-inter'), {
-        type: 'bar',
-        data: {
-            labels: mois,
-            datasets: [{
-                label: 'Interventions',
-                data: interParMois,
-                backgroundColor: '#1a6bbf',
-                borderRadius: 6
-            }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-
-    // Graphique des Revenues
-    new Chart(document.getElementById('chart-revenus'), {
-        type: 'line',
-        data: {
-            labels: mois,
-            datasets: [{
-                label: 'Revenus €',
-                data: revenusParMois,
-                borderColor: '#1a8a4a',
-                backgroundColor: 'rgba(26,138,74,0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-}
-
-// 4. RENDERS DES TABLEAUX
-function renderContacts(contacts) {
-    if (!contacts.length) { document.getElementById('tbl-contacts').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune demande.</p>'; return; }
-    var statutColors = {nouveau:'statut-planifiee', lu:'statut-en-attente', traite:'statut-terminee'};
-    document.getElementById('tbl-contacts').innerHTML = '<table class="admin-table"><thead><tr><th>Nom</th><th>Email</th><th>Tél</th><th>Prestation</th><th>Message</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
-    + contacts.map(function(c) {
-        var emailEncode = c.email.replace(/'/g, "\\'");
-        var nomEncode = c.nom.replace(/'/g, "\\'");
-        return '<tr><td><strong>' + c.nom + '</strong></td><td>' + c.email + '</td><td>' + c.telephone + '</td><td>' + c.prestation + '</td><td style="max-width:150px;font-size:11px;">' + c.message.substring(0,80) + '...</td><td>' + new Date(c.date_envoi).toLocaleDateString('fr-FR') + '</td><td><span class="statut-badge ' + (statutColors[c.statut]||'') + '">' + c.statut + '</span></td><td style="display:flex;gap:4px;flex-wrap:wrap;">'
-        + '<button class="btn-sm green" onclick="changerStatutContact(' + c.id + ',\'traite\')">✓ Traité</button>'
-        + '<button class="btn-sm blue" onclick="ouvrirRepondreContact(\'' + emailEncode + '\',\'' + nomEncode + '\')">💬 Répondre</button>'
-        + '</td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-function ouvrirRepondreContact(email, nom) {
-    document.getElementById('repondre-client-id').value = 'email:' + email;
-    document.getElementById('repondre-client-nom').textContent = nom + ' (' + email + ')';
-    openModal('modal-repondre');
-}
-
-function renderMessages(messages) {
-    if (!messages.length) { document.getElementById('tbl-messages').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucun message.</p>'; return; }
-    document.getElementById('tbl-messages').innerHTML = '<table class="admin-table"><thead><tr><th>Client</th><th>De</th><th>Sujet</th><th>Message</th><th>Date</th><th>Lu</th><th>Actions</th></tr></thead><tbody>'
-    + messages.map(function(m) {
-        return '<tr style="' + (m.expediteur==='client' && !m.lu ? 'background:#fff8e1;' : '') + '"><td><strong>' + m.prenom + ' ' + m.nom + '</strong></td><td>' + (m.expediteur==='client'?'👤 Client':'🔐 Admin') + '</td><td>' + m.sujet + '</td><td style="max-width:180px;font-size:11px;">' + m.contenu.substring(0,100) + '</td><td>' + new Date(m.date_envoi).toLocaleDateString('fr-FR') + '</td><td>' + (m.lu?'✅':'🔴') + '</td><td>'
-        + (m.expediteur==='client' ? '<button class="btn-sm blue" onclick="ouvrirRepondre(' + m.client_id + ',\'' + m.prenom + ' ' + m.nom + '\')">💬 Répondre</button>' : '')
-        + '</td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-function renderClients(clients) {
-    if (!clients.length) { document.getElementById('tbl-clients').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucun client.</p>'; return; }
-    document.getElementById('tbl-clients').innerHTML = '<table class="admin-table"><thead><tr><th>Nom</th><th>Prénom</th><th>Email</th><th>Tél</th><th>Inscription</th><th>Actions</th></tr></thead><tbody>'
-    + clients.map(function(c) {
-        return '<tr><td><strong>' + c.nom + '</strong></td><td>' + c.prenom + '</td><td>' + c.email + '</td><td>' + (c.telephone||'-') + '</td><td>' + new Date(c.date_inscription).toLocaleDateString('fr-FR') + '</td><td style="display:flex;gap:4px;">'
-        + '<button class="btn-sm blue" onclick="ouvrirRepondre(' + c.id + ',\'' + c.prenom + ' ' + c.nom + '\')">💬 Message</button>'
-        + '</td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-function renderInterventions(interventions) {
-    if (!interventions.length) { document.getElementById('tbl-interventions').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune intervention.</p>'; return; }
-    var sc = {planifiee:'statut-planifiee',terminee:'statut-terminee',annulee:'statut-annulee',en_cours:'statut-en-attente'};
-    document.getElementById('tbl-interventions').innerHTML = '<table class="admin-table"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Heure</th><th>Prix</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
-    + interventions.map(function(i) {
-        return '<tr><td><strong>' + i.prenom + ' ' + i.nom + '</strong></td><td>' + i.type_service + '</td><td>' + new Date(i.date_intervention).toLocaleDateString('fr-FR') + '</td><td>' + (i.heure||'-') + '</td><td>' + (i.prix?parseFloat(i.prix).toFixed(2)+'€':'-') + '</td><td><span class="statut-badge ' + (sc[i.statut]||'') + '">' + i.statut + '</span></td><td style="display:flex;gap:4px;flex-wrap:wrap;">'
-        + '<button class="btn-sm green" onclick="changerStatutInter(' + i.id + ',\'terminee\')">✓ Terminée</button>'
-        + '<button class="btn-sm orange" onclick="changerStatutInter(' + i.id + ',\'en_cours\')">▶ En cours</button>'
-        + '<button class="btn-sm red" onclick="changerStatutInter(' + i.id + ',\'annulee\')">✕ Annuler</button>'
-        + '</td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-function renderFactures(factures) {
-    if (!factures.length) { document.getElementById('tbl-factures').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune facture.</p>'; return; }
-    document.getElementById('tbl-factures').innerHTML = '<table class="admin-table"><thead><tr><th>Client</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead><tbody>'
-    + factures.map(function(f) {
-        return '<tr><td><strong>' + f.prenom + ' ' + f.nom + '</strong></td><td><strong>' + parseFloat(f.montant).toFixed(2) + ' €</strong></td><td>' + new Date(f.date_facture).toLocaleDateString('fr-FR') + '</td><td><span class="statut-badge ' + (f.statut==='payee'?'statut-terminee':'statut-en-attente') + '">' + (f.statut==='payee'?'Payée':'En attente') + '</span></td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-function renderCandidatures(candidatures) {
-    if (!candidatures.length) { document.getElementById('tbl-candidatures').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune candidature.</p>'; return; }
-    var sc = {nouvelle:'statut-planifiee',en_etude:'statut-en-attente',acceptee:'statut-terminee',refusee:'statut-annulee'};
-    document.getElementById('tbl-candidatures').innerHTML = '<table class="admin-table"><thead><tr><th>Nom</th><th>Email</th><th>Poste</th><th>Expérience</th><th>Lettre</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
-    + candidatures.map(function(c) {
-        return '<tr><td><strong>' + c.prenom + ' ' + c.nom + '</strong></td><td>' + c.email + '</td><td>' + c.poste + '</td><td>' + (c.experience||'-') + '</td><td style="max-width:150px;font-size:11px;">' + (c.lettre||'-').substring(0,80) + '</td><td>' + new Date(c.date_envoi).toLocaleDateString('fr-FR') + '</td><td><span class="statut-badge ' + (sc[c.statut]||'') + '">' + c.statut + '</span></td><td style="display:flex;gap:4px;flex-wrap:wrap;">'
-        + '<button class="btn-sm green" onclick="changerStatutCandi(' + c.id + ',\'acceptee\')">✓ Accepter</button>'
-        + '<button class="btn-sm orange" onclick="changerStatutCandi(' + c.id + ',\'en_etude\')">🔍 Étude</button>'
-        + '<button class="btn-sm red" onclick="changerStatutCandi(' + c.id + ',\'refusee\')">✕ Refuser</button>'
-        + '</td></tr>';
-    }).join('') + '</tbody></table>';
-}
-
-// 5. FONCTIONS GLOBALES & UTILS
-function showSection(name) {
-    ['contacts','messages','clients','interventions','factures','candidatures'].forEach(function(s) {
-        document.getElementById('sec-'+s).style.display = s===name?'block':'none';
-        document.querySelector('.sidebar-nav a[onclick*="'+s+'"]').classList.toggle('active', s===name);
-    });
-    var titles = {contacts:'Demandes de contact & devis',messages:'Messagerie clients',clients:'Clients inscrits',interventions:'Interventions',factures:'Factures',candidatures:'Candidatures reçues'};
-    document.getElementById('section-title').textContent = titles[name];
-}
-
-function ouvrirRepondre(clientId, clientNom) {
-    document.getElementById('repondre-client-id').value = clientId;
-    document.getElementById('repondre-client-nom').textContent = clientNom;
-    openModal('modal-repondre');
-}
-
-function changerStatutContact(id, statut) {
-    var fd = new FormData();
-    fd.append('action', 'statut_contact');
-    fd.append('id', id);
-    fd.append('statut', statut);
-    adminAction(fd, function() { chargerDonnees(); });
-}
-
-function changerStatutInter(id, statut) {
-    var fd = new FormData();
-    fd.append('action', 'statut_intervention');
-    fd.append('id', id);
-    fd.append('statut', statut);
-    adminAction(fd, function() { chargerDonnees(); });
-}
-
-function changerStatutCandi(id, statut) {
-    var fd = new FormData();
-    fd.append('action', 'statut_candidature');
-    fd.append('id', id);
-    fd.append('statut', statut);
-    adminAction(fd, function() { chargerDonnees(); });
-}
-
-function adminAction(formData, callback) {
+// ============ ACTION ADMIN ============
+function adminAction(formData, msgZoneId, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'http://localhost/aube-proprete/php/admin-actions.php');
+    xhr.withCredentials = true;
     xhr.onload = function() {
-        var data = JSON.parse(xhr.responseText);
-        if (data.succes && callback) callback();
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (msgZoneId) {
+                var zone = document.getElementById(msgZoneId);
+                if (zone) zone.innerHTML = '<div class="auth-message-' + (data.succes?'succes':'erreur') + '" style="margin-top:8px;">' + (data.succes?'✅':'❌') + ' ' + data.message + '</div>';
+            }
+            if (data.succes && callback) {
+                setTimeout(function() {
+                    if (msgZoneId) {
+                        var z = document.getElementById(msgZoneId);
+                        if (z) z.innerHTML = '';
+                    }
+                    callback();
+                }, 1500);
+            }
+        } catch(e) {
+            console.error('Erreur action:', e, xhr.responseText);
+        }
+    };
+    xhr.onerror = function() {
+        console.error('Erreur réseau admin action');
     };
     xhr.send(formData);
 }
 
-// 6. FORMULAIRES DES MODALS
+// ============ RENDER FONCTIONS ============
+function renderContacts(contacts) {
+    var zone = document.getElementById('tbl-contacts');
+    if (!contacts.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;padding:12px 0;">Aucune demande reçue.</p>'; return; }
+    var sc = {nouveau:'statut-planifiee', lu:'statut-en-attente', traite:'statut-terminee'};
+    zone.innerHTML = '<div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Nom</th><th>Email</th><th>Tél</th><th>Prestation</th><th>Message</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
+    + contacts.map(function(c) {
+        var emailSafe = c.email.replace(/'/g,"\\'");
+        var nomSafe = c.nom.replace(/'/g,"\\'");
+        return '<tr><td><strong>' + c.nom + '</strong></td><td style="font-size:11px;">' + c.email + '</td><td>' + c.telephone + '</td><td>' + c.prestation + '</td><td style="max-width:150px;font-size:11px;">' + c.message.substring(0,60) + '...</td><td>' + new Date(c.date_envoi).toLocaleDateString('fr-FR') + '</td>'
+        + '<td><span class="statut-badge ' + (sc[c.statut]||'') + '">' + c.statut + '</span></td>'
+        + '<td><div style="display:flex;gap:4px;flex-wrap:wrap;">'
+        + '<button class="btn-sm green" onclick="actionContact(' + c.id + ',\'traite\')">✓ Traité</button>'
+        + '<button class="btn-sm blue" onclick="ouvrirRepondreContact(\'' + emailSafe + '\',\'' + nomSafe + '\')">💬 Répondre</button>'
+        + '</div></td></tr>';
+    }).join('')
+    + '</tbody></table></div>';
+}
+
+function renderMessages(messages) {
+    var zone = document.getElementById('tbl-messages');
+    if (!messages.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;padding:12px 0;">Aucun message.</p>'; return; }
+    zone.innerHTML = '<div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Client</th><th>De</th><th>Sujet</th><th>Message</th><th>Date</th><th>Lu</th><th>Actions</th></tr></thead><tbody>'
+    + messages.map(function(m) {
+        var nonLu = m.expediteur==='client' && !m.lu;
+        var nomSafe = (m.prenom + ' ' + m.nom).replace(/'/g,"\\'");
+        return '<tr style="' + (nonLu ? 'background:#fff8e1;' : '') + '">'
+        + '<td><strong>' + m.prenom + ' ' + m.nom + '</strong></td>'
+        + '<td>' + (m.expediteur==='client'?'👤 Client':'🔐 Admin') + '</td>'
+        + '<td>' + m.sujet + '</td>'
+        + '<td style="max-width:180px;font-size:11px;">' + m.contenu.substring(0,80) + '</td>'
+        + '<td>' + new Date(m.date_envoi).toLocaleDateString('fr-FR') + '</td>'
+        + '<td>' + (m.lu?'✅':'🔴') + '</td>'
+        + '<td>' + (m.expediteur==='client' ? '<button class="btn-sm blue" onclick="ouvrirRepondre(' + m.client_id + ',\'' + nomSafe + '\')">💬 Répondre</button>' : '') + '</td>'
+        + '</tr>';
+    }).join('')
+    + '</tbody></table></div>';
+}
+
+function renderClients(clients) {
+    var zone = document.getElementById('tbl-clients');
+    if (!clients.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;padding:12px 0;">Aucun client.</p>'; return; }
+    zone.innerHTML = '<div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Nom</th><th>Prénom</th><th>Email</th><th>Tél</th><th>Inscription</th><th>Actions</th></tr></thead><tbody>'
+    + clients.map(function(c) {
+        var nomSafe = (c.prenom + ' ' + c.nom).replace(/'/g,"\\'");
+        return '<tr><td><strong>' + c.nom + '</strong></td><td>' + c.prenom + '</td><td style="font-size:11px;">' + c.email + '</td><td>' + (c.telephone||'-') + '</td><td>' + new Date(c.date_inscription).toLocaleDateString('fr-FR') + '</td>'
+        + '<td><button class="btn-sm blue" onclick="ouvrirRepondre(' + c.id + ',\'' + nomSafe + '\')">💬 Message</button></td></tr>';
+    }).join('')
+    + '</tbody></table></div>';
+}
+
+function renderInterventions(interventions) {
+    var zone = document.getElementById('tbl-interventions');
+    if (!interventions.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;padding:12px 0;">Aucune intervention.</p>'; return; }
+    var sc = {planifiee:'statut-planifiee',terminee:'statut-terminee',annulee:'statut-annulee',en_cours:'statut-en-attente'};
+    var lb = {planifiee:'Planifiée',terminee:'Terminée',annulee:'Annulée',en_cours:'En cours'};
+    zone.innerHTML = '<div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Heure</th><th>Prix</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
+    + interventions.map(function(i) {
+        return '<tr><td><strong>' + i.prenom + ' ' + i.nom + '</strong></td>'
+        + '<td>' + i.type_service + '</td>'
+        + '<td>' + new Date(i.date_intervention).toLocaleDateString('fr-FR') + '</td>'
+        + '<td>' + (i.heure||'-') + '</td>'
+        + '<td>' + (i.prix ? parseFloat(i.prix).toFixed(2)+'€' : '-') + '</td>'
+        + '<td><span class="statut-badge ' + (sc[i.statut]||'') + '">' + (lb[i.statut]||i.statut) + '</span></td>'
+        + '<td><div style="display:flex;gap:4px;flex-wrap:wrap;">'
+        + '<button class="btn-sm green" onclick="actionInter(' + i.id + ',\'terminee\')">✓ Terminée</button>'
+        + '<button class="btn-sm orange" onclick="actionInter(' + i.id + ',\'en_cours\')">▶ En cours</button>'
+        + '<button class="btn-sm red" onclick="actionInter(' + i.id + ',\'annulee\')">✕ Annuler</button>'
+        + '</div></td></tr>';
+    }).join('')
+    + '</tbody></table></div>';
+}
+
+function renderFactures(factures) {
+    var zone = document.getElementById('tbl-factures');
+    if (!factures.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;padding:12px 0;">Aucune facture.</p>'; return; }
+    zone.innerHTML = '<div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Client</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead><tbody>'
+    + factures.map(function(f) {
+        return '<tr><td><strong>' + f.prenom + ' ' + f.nom + '</strong></td>'
+        + '<td><strong>' + parseFloat(f.montant).toFixed(2) + ' €</strong></td>'
+        + '<td>' + new Date(f.date_facture).toLocaleDateString('fr-FR') + '</td>'
+        + '<td><span class="statut-badge ' + (f.statut==='payee'?'statut-terminee':'statut-en-attente') + '">' + (f.statut==='payee'?'Payée':'En attente') + '</span></td>'
+        + '</tr>';
+    }).join('')
+    + '</tbody></table></div>';
+}
+
+function renderCandidatures(candidatures) {
+    var zone = document.getElementById('tbl-candidatures');
+    if (!candidatures.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;padding:12px 0;">Aucune candidature.</p>'; return; }
+    var sc = {nouvelle:'statut-planifiee',en_etude:'statut-en-attente',acceptee:'statut-terminee',refusee:'statut-annulee'};
+    var lb = {nouvelle:'Nouvelle',en_etude:'En étude',acceptee:'Acceptée',refusee:'Refusée'};
+    zone.innerHTML = '<div style="overflow-x:auto;"><table class="admin-table"><thead><tr><th>Nom</th><th>Email</th><th>Poste</th><th>Expérience</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
+    + candidatures.map(function(c) {
+        return '<tr><td><strong>' + c.prenom + ' ' + c.nom + '</strong></td>'
+        + '<td style="font-size:11px;">' + c.email + '</td>'
+        + '<td>' + c.poste + '</td>'
+        + '<td>' + (c.experience||'-') + '</td>'
+        + '<td>' + new Date(c.date_envoi).toLocaleDateString('fr-FR') + '</td>'
+        + '<td><span class="statut-badge ' + (sc[c.statut]||'') + '">' + (lb[c.statut]||c.statut) + '</span></td>'
+        + '<td><div style="display:flex;gap:4px;flex-wrap:wrap;">'
+        + '<button class="btn-sm green" onclick="actionCandi(' + c.id + ',\'acceptee\')">✓ Accepter</button>'
+        + '<button class="btn-sm orange" onclick="actionCandi(' + c.id + ',\'en_etude\')">🔍 Étude</button>'
+        + '<button class="btn-sm red" onclick="actionCandi(' + c.id + ',\'refusee\')">✕ Refuser</button>'
+        + '</div></td></tr>';
+    }).join('')
+    + '</tbody></table></div>';
+}
+
+// ============ ACTIONS BOUTONS ============
+function actionContact(id, statut) {
+    var fd = new FormData();
+    fd.append('action', 'statut_contact');
+    fd.append('id', id);
+    fd.append('statut', statut);
+    adminAction(fd, null, function() { chargerDonnees(); showSection('contacts'); });
+}
+
+function actionInter(id, statut) {
+    var fd = new FormData();
+    fd.append('action', 'statut_intervention');
+    fd.append('id', id);
+    fd.append('statut', statut);
+    adminAction(fd, null, function() { chargerDonnees(); showSection('interventions'); });
+}
+
+function actionCandi(id, statut) {
+    var fd = new FormData();
+    fd.append('action', 'statut_candidature');
+    fd.append('id', id);
+    fd.append('statut', statut);
+    adminAction(fd, null, function() { chargerDonnees(); showSection('candidatures'); });
+}
+
+// ============ MODALS ============
+function ouvrirRepondre(clientId, clientNom) {
+    document.getElementById('repondre-client-id').value = clientId;
+    document.getElementById('repondre-client-nom').textContent = clientNom;
+    document.getElementById('msg-repondre').innerHTML = '';
+    document.getElementById('form-repondre').reset();
+    document.getElementById('repondre-client-id').value = clientId;
+    openModal('modal-repondre');
+}
+
+function ouvrirRepondreContact(email, nom) {
+    document.getElementById('repondre-client-id').value = 'email:' + email;
+    document.getElementById('repondre-client-nom').textContent = nom + ' — ' + email;
+    document.getElementById('msg-repondre').innerHTML = '';
+    document.getElementById('form-repondre').reset();
+    document.getElementById('repondre-client-id').value = 'email:' + email;
+    openModal('modal-repondre');
+}
+
 document.getElementById('form-repondre').addEventListener('submit', function(e) {
     e.preventDefault();
-    var fd = new FormData(this);
+    var fd = new FormData();
     var clientVal = document.getElementById('repondre-client-id').value;
-    
+    var sujet = this.querySelector('[name="sujet"]').value;
+    var contenu = this.querySelector('[name="contenu"]').value;
+
     if (clientVal.startsWith('email:')) {
-        fd.set('action', 'repondre_contact');
-        fd.set('email', clientVal.replace('email:', ''));
-        fd.delete('client_id');
+        fd.append('action', 'repondre_contact');
+        fd.append('email', clientVal.replace('email:', ''));
     } else {
-        fd.set('action', 'repondre_client');
+        fd.append('action', 'repondre_client');
+        fd.append('client_id', clientVal);
     }
-    
-    adminAction(fd, function() {
-        document.getElementById('msg-repondre').innerHTML = '<div class="auth-message-succes" style="margin-top:8px;">✅ Message envoyé !</div>';
-        setTimeout(function() { closeModal('modal-repondre'); chargerDonnees(); }, 1500);
+    fd.append('sujet', sujet);
+    fd.append('contenu', contenu);
+    adminAction(fd, 'msg-repondre', function() {
+        closeModal('modal-repondre');
+        chargerDonnees();
     });
 });
 
 document.getElementById('form-planifier').addEventListener('submit', function(e) {
     e.preventDefault();
     var fd = new FormData(this);
-    adminAction(fd, function() {
-        document.getElementById('msg-planifier').innerHTML = '<div class="auth-message-succes" style="margin-top:8px;">Intervention planifiée !</div>';
-        setTimeout(function() { closeModal('modal-planifier'); chargerDonnees(); }, 1500);
+    adminAction(fd, 'msg-planifier', function() {
+        closeModal('modal-planifier');
+        chargerDonnees();
+        showSection('interventions');
     });
 });
 
 document.getElementById('form-facture').addEventListener('submit', function(e) {
     e.preventDefault();
     var fd = new FormData(this);
-    adminAction(fd, function() {
-        document.getElementById('msg-facture').innerHTML = '<div class="auth-message-succes" style="margin-top:8px;">Facture créée !</div>';
-        setTimeout(function() { closeModal('modal-facture'); chargerDonnees(); }, 1500);
+    adminAction(fd, 'msg-facture', function() {
+        closeModal('modal-facture');
+        chargerDonnees();
+        showSection('factures');
     });
 });
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    var f = document.getElementById(id).querySelector('form');
+    if (f) f.reset();
+}
+
+function showSection(name) {
+    ['contacts','messages','clients','interventions','factures','candidatures'].forEach(function(s) {
+        document.getElementById('sec-'+s).style.display = s===name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.sidebar-nav a').forEach(function(a) {
+        a.classList.remove('active');
+        if (a.getAttribute('onclick') && a.getAttribute('onclick').includes("'"+name+"'")) {
+            a.classList.add('active');
+        }
+    });
+    var titles = {
+        contacts:'Demandes de contact & devis',
+        messages:'Messagerie clients',
+        clients:'Clients inscrits',
+        interventions:'Interventions',
+        factures:'Factures',
+        candidatures:'Candidatures reçues'
+    };
+    document.getElementById('section-title').textContent = titles[name] || name;
+}
+
+function afficherGraphiques(interventions, factures) {
+    if (typeof Chart === 'undefined') return;
+    var mois = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    var interParMois = new Array(12).fill(0);
+    var revenusParMois = new Array(12).fill(0);
+    interventions.forEach(function(i) {
+        var m = new Date(i.date_intervention).getMonth();
+        interParMois[m]++;
+    });
+    factures.forEach(function(f) {
+        if (f.statut === 'payee') {
+            var m = new Date(f.date_facture).getMonth();
+            revenusParMois[m] += parseFloat(f.montant);
+        }
+    });
+    var c1 = document.getElementById('chart-inter');
+    var c2 = document.getElementById('chart-revenus');
+    if (c1 && c2) {
+        if (window._chart1) window._chart1.destroy();
+        if (window._chart2) window._chart2.destroy();
+        window._chart1 = new Chart(c1, {
+            type: 'bar',
+            data: { labels: mois, datasets: [{ label: 'Interventions', data: interParMois, backgroundColor: '#1a6bbf', borderRadius: 6 }] },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+        window._chart2 = new Chart(c2, {
+            type: 'line',
+            data: { labels: mois, datasets: [{ label: 'Revenus €', data: revenusParMois, borderColor: '#1a8a4a', backgroundColor: 'rgba(26,138,74,0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    }
+}
 </script>
 </body>
 </html>
