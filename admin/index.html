@@ -6,6 +6,7 @@
     <title>Panel Admin — Aube Propreté Services</title>
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/espace-client.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <style>
     .admin-table{width:100%;border-collapse:collapse;font-size:12px;}
     .admin-table th{background:var(--bleu-tres-clair);color:var(--texte-titre);font-weight:600;padding:10px 12px;text-align:left;border-bottom:2px solid var(--bleu-bordure);}
@@ -105,6 +106,18 @@
                 <div class="dash-stat-card"><div class="dash-stat-icon">👥</div><div class="dash-stat-value" id="s-clients">--</div><div class="dash-stat-label">Clients</div></div>
                 <div class="dash-stat-card"><div class="dash-stat-icon">📋</div><div class="dash-stat-value" id="s-inter">--</div><div class="dash-stat-label">Interventions</div></div>
                 <div class="dash-stat-card"><div class="dash-stat-icon">👔</div><div class="dash-stat-value" id="s-candi">--</div><div class="dash-stat-label">Candidatures</div></div>
+            </div>
+
+            <!-- GRAPHIQUES ADMIN -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;" id="graphs-container" style="display:none;">
+                <div class="dash-widget">
+                    <div class="dash-widget-header"><span class="dash-widget-title">📈 Interventions par mois</span></div>
+                    <div class="dash-widget-body"><canvas id="chart-inter" height="200"></canvas></div>
+                </div>
+                <div class="dash-widget">
+                    <div class="dash-widget-header"><span class="dash-widget-title">💰 Revenus par mois</span></div>
+                    <div class="dash-widget-body"><canvas id="chart-revenus" height="200"></canvas></div>
+                </div>
             </div>
 
             <!-- CONTACTS -->
@@ -234,7 +247,7 @@
 <script>
 var adminData = null;
 
-// LOGIN
+// 1. CONNEXION
 document.getElementById('login-form').addEventListener('submit', function(e) {
     e.preventDefault();
     var fd = new FormData(this);
@@ -253,6 +266,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     xhr.send(fd);
 });
 
+// 2. CHARGEMENT DES DONNÉES
 function chargerDonnees() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'http://localhost/aube-proprete/php/admin-data.php');
@@ -281,17 +295,73 @@ function chargerDonnees() {
         document.getElementById('select-client').innerHTML = '<option value="">Choisir un client</option>' + opts;
         document.getElementById('select-client-facture').innerHTML = '<option value="">Choisir un client</option>' + opts;
 
-        // Tableaux
+        // Affichage des Tableaux
         renderContacts(data.contacts);
         renderMessages(data.messages);
         renderClients(data.clients);
         renderInterventions(data.interventions);
         renderFactures(data.factures);
         renderCandidatures(data.candidatures);
+
+        // === AJOUT CLAUDE : APPEL DES GRAPHIQUES ===
+        afficherGraphiques(data.interventions, data.factures);
+        document.getElementById('graphs-container').style.display = 'grid';
     };
     xhr.send();
 }
 
+// 3. FONCTION DE GÉNÉRATION DES GRAPHIQUES (CHART.JS)
+function afficherGraphiques(interventions, factures) {
+    var mois = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    var interParMois = new Array(12).fill(0);
+    var revenusParMois = new Array(12).fill(0);
+
+    interventions.forEach(function(i) {
+        var m = new Date(i.date_intervention).getMonth();
+        interParMois[m]++;
+    });
+
+    factures.forEach(function(f) {
+        if (f.statut === 'payee') {
+            var m = new Date(f.date_facture).getMonth();
+            revenusParMois[m] += parseFloat(f.montant);
+        }
+    });
+
+    // Graphique des Interventions
+    new Chart(document.getElementById('chart-inter'), {
+        type: 'bar',
+        data: {
+            labels: mois,
+            datasets: [{
+                label: 'Interventions',
+                data: interParMois,
+                backgroundColor: '#1a6bbf',
+                borderRadius: 6
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    // Graphique des Revenues
+    new Chart(document.getElementById('chart-revenus'), {
+        type: 'line',
+        data: {
+            labels: mois,
+            datasets: [{
+                label: 'Revenus €',
+                data: revenusParMois,
+                borderColor: '#1a8a4a',
+                backgroundColor: 'rgba(26,138,74,0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+}
+
+// 4. RENDERS DES TABLEAUX
 function renderContacts(contacts) {
     if (!contacts.length) { document.getElementById('tbl-contacts').innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune demande.</p>'; return; }
     var statutColors = {nouveau:'statut-planifiee', lu:'statut-en-attente', traite:'statut-terminee'};
@@ -366,6 +436,7 @@ function renderCandidatures(candidatures) {
     }).join('') + '</tbody></table>';
 }
 
+// 5. FONCTIONS GLOBALES & UTILS
 function showSection(name) {
     ['contacts','messages','clients','interventions','factures','candidatures'].forEach(function(s) {
         document.getElementById('sec-'+s).style.display = s===name?'block':'none';
@@ -415,19 +486,17 @@ function adminAction(formData, callback) {
     xhr.send(formData);
 }
 
-// Forms modals
+// 6. FORMULAIRES DES MODALS
 document.getElementById('form-repondre').addEventListener('submit', function(e) {
     e.preventDefault();
     var fd = new FormData(this);
     var clientVal = document.getElementById('repondre-client-id').value;
     
     if (clientVal.startsWith('email:')) {
-        // Contact sans compte → répondre par email
         fd.set('action', 'repondre_contact');
         fd.set('email', clientVal.replace('email:', ''));
         fd.delete('client_id');
     } else {
-        // Client avec compte → message espace client
         fd.set('action', 'repondre_client');
     }
     

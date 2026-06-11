@@ -90,5 +90,22 @@
     </div>
 
     <script src="../js/login.js"></script>
+    <script>
+// Vérifier messages non lus
+(function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost/aube-proprete/php/messages.php?action=non_lus');
+    xhr.onload = function() {
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (data.succes && data.non_lus > 0) {
+                var badge = document.getElementById('notif-msg');
+                if (badge) { badge.textContent = data.non_lus; badge.style.display = 'inline'; }
+            }
+        } catch(e) {}
+    };
+    xhr.send();
+})();
+</script>
 </body>
 </html>
