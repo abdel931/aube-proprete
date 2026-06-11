@@ -1,13 +1,21 @@
 <?php
 header('Content-Type: application/json');
-session_start();
+
+// Détruire l'ancienne session proprement
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 session_unset();
 session_destroy();
+
+// Nouvelle session propre
 session_start();
+session_regenerate_id(true);
+
 require_once 'connexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    die(json_encode(['succes' => false, 'message' => 'Méthode non autorisée.']));
+    die(json_encode(['succes' => false, 'message' => 'Methode non autorisee.']));
 }
 
 $email        = trim($_POST['email'] ?? '');
@@ -23,14 +31,14 @@ try {
     $client = $stmt->fetch();
 
     if ($client && password_verify($mot_de_passe, $client['mot_de_passe'])) {
-        $_SESSION['client_id']     = $client['id'];
+        $_SESSION['client_id']     = (int)$client['id'];
         $_SESSION['client_nom']    = $client['nom'];
         $_SESSION['client_prenom'] = $client['prenom'];
         $_SESSION['client_email']  = $client['email'];
 
         echo json_encode([
             'succes'   => true,
-            'message'  => 'Connexion réussie !',
+            'message'  => 'Connexion reussie !',
             'redirect' => '/aube-proprete/espace-client/dashboard.html'
         ]);
     } else {

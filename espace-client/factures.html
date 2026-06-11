@@ -6,6 +6,16 @@
     <title>Mes factures — Aube Propreté</title>
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/espace-client.css" />
+    <style>
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;}
+    .modal.open{display:flex;}
+    .modal-box{background:#fff;border-radius:12px;padding:28px;width:420px;max-width:90vw;}
+    .modal-title{font-size:16px;font-weight:600;color:var(--texte-titre);margin-bottom:16px;}
+    .method-btn{width:100%;padding:12px;border:2px solid var(--bleu-bordure);border-radius:8px;background:#fff;cursor:pointer;font-size:14px;font-family:inherit;margin-bottom:8px;text-align:left;transition:all 0.2s;}
+    .method-btn:hover,.method-btn.selected{border-color:var(--bleu-moyen);background:var(--bleu-tres-clair);}
+    .btn-payer{background:#1a8a4a;color:#fff;font-size:13px;font-weight:600;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;transition:all 0.2s;}
+    .btn-payer:hover{background:#166a3a;transform:translateY(-1px);}
+    </style>
 </head>
 <body class="dashboard-body">
 <div class="dashboard-layout">
@@ -16,7 +26,7 @@
             <a href="interventions.html"><span class="nav-icon">📋</span> Mes interventions</a>
             <a href="factures.html" class="active"><span class="nav-icon">💰</span> Mes factures</a>
             <a href="rdv.html"><span class="nav-icon">📅</span> Prendre un RDV</a>
-            <a href="messagerie.html"><span class="nav-icon">✉️</span> Messagerie</a>
+            <a href="messagerie.html"><span class="nav-icon">✉️</span> Messagerie <span id="badge-msg" style="display:none;background:#e74c3c;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;">!</span></a>
             <a href="profil.html"><span class="nav-icon">👤</span> Mon profil</a>
         </nav>
         <div class="sidebar-footer"><a href="../index.html">🌐 Retour au site</a></div>
@@ -25,49 +35,158 @@
         <div class="dashboard-header">
             <h1>Mes factures</h1>
             <div class="dashboard-header-right">
+                <div class="user-badge">
+                    <div class="user-avatar" id="user-initials">--</div>
+                    <span class="user-name" id="user-name">--</span>
+                </div>
                 <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
             </div>
         </div>
         <div class="dashboard-content">
+
+            <div id="paiement-message" style="margin-bottom:16px;"></div>
+
+            <!-- Résumé -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;" id="factures-resume">
+                <div class="dash-stat-card"><div class="dash-stat-icon">💰</div><div class="dash-stat-value" id="total-montant">--</div><div class="dash-stat-label">Total facturé</div></div>
+                <div class="dash-stat-card"><div class="dash-stat-icon">✅</div><div class="dash-stat-value" id="total-paye">--</div><div class="dash-stat-label">Total payé</div></div>
+                <div class="dash-stat-card"><div class="dash-stat-icon">⏳</div><div class="dash-stat-value" id="total-attente">--</div><div class="dash-stat-label">En attente</div></div>
+            </div>
+
             <div class="dash-widget">
                 <div class="dash-widget-header">
                     <span class="dash-widget-title">Toutes mes factures</span>
                 </div>
-                <div class="dash-widget-body" id="toutes-factures">
+                <div class="dash-widget-body" id="liste-factures">
                     <p style="font-size:13px;color:#3a6a99;">Chargement...</p>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
+<!-- MODAL PAIEMENT -->
+<div class="modal" id="modal-paiement">
+    <div class="modal-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div class="modal-title" style="margin:0;">💳 Payer la facture</div>
+            <button onclick="fermerModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#999;">✕</button>
+        </div>
+        <div id="modal-facture-info" style="background:var(--bleu-clair);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;"></div>
+        <p style="font-size:13px;font-weight:600;color:var(--texte-titre);margin-bottom:10px;">Choisissez votre moyen de paiement :</p>
+        <button class="method-btn selected" id="btn-carte" onclick="selectMethod('carte')">💳 Carte bancaire (CB, Visa, Mastercard)</button>
+        <button class="method-btn" id="btn-virement" onclick="selectMethod('virement')">🏦 Virement bancaire</button>
+        <button class="method-btn" id="btn-paypal" onclick="selectMethod('paypal')">🅿️ PayPal</button>
+        <div id="paiement-form-info" style="background:#fff8e1;border-radius:8px;padding:10px;font-size:12px;color:#795548;margin:10px 0;">
+            💳 Vous serez redirigé vers notre plateforme de paiement sécurisée.
+        </div>
+        <button onclick="confirmerPaiement()" style="width:100%;background:var(--bleu-moyen);color:#fff;padding:13px;border:none;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;" id="btn-confirmer">
+            🔒 Confirmer le paiement
+        </button>
+        <p style="font-size:11px;color:#7ab8e8;text-align:center;margin-top:8px;">🔒 Paiement 100% sécurisé — SSL/TLS</p>
+    </div>
+</div>
+
 <script>
-fetch('http://localhost/aube-proprete/php/get-dashboard.php')
-.then(r => r.json())
-.then(function(data) {
-    if (!data.succes) { window.location.href = 'login.html'; return; }
-    const zone = document.getElementById('toutes-factures');
-    if (data.factures.length === 0) {
-        zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune facture pour le moment.</p>';
-        return;
-    }
-    const badges = {'payee':'statut-payee','en_attente':'statut-en-attente','annulee':'statut-annulee'};
-    const labels = {'payee':'Payée','en_attente':'En attente','annulee':'Annulée'};
-    zone.innerHTML = data.factures.map(function(f, i) {
-        const num = 'FAC-2026-' + String(i+1).padStart(3,'0');
-        const date = new Date(f.date_facture).toLocaleDateString('fr-FR');
-        return `<div class="facture-row" style="padding:16px 0;">
-            <div>
-                <div class="facture-num">${num}</div>
-                <div class="facture-montant">${parseFloat(f.montant).toFixed(2)} €</div>
-                <div style="font-size:11px;color:#5a8ab0;">Émise le ${date}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-                <span class="statut-badge ${badges[f.statut] || ''}">${labels[f.statut] || f.statut}</span>
-                <span style="font-size:11px;color:#1a6bbf;cursor:pointer;">📄 Télécharger PDF</span>
-            </div>
-        </div>`;
-    }).join('');
-});
+var factureSelectionnee = null;
+var methodePaiement = 'carte';
+
+window.onload = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'http://localhost/aube-proprete/php/get-dashboard.php');
+    xhr.onload = function() {
+        var data = JSON.parse(xhr.responseText);
+        if (!data.succes) { window.location.href = 'login.html'; return; }
+
+        var c = data.client;
+        document.getElementById('user-initials').textContent = c.prenom[0].toUpperCase() + c.nom[0].toUpperCase();
+        document.getElementById('user-name').textContent = c.prenom + ' ' + c.nom;
+
+        if (data.stats.non_lus > 0) document.getElementById('badge-msg').style.display = 'inline';
+
+        var factures = data.factures;
+        var totalMontant = factures.reduce(function(s,f){return s+parseFloat(f.montant);},0);
+        var totalPaye    = factures.filter(function(f){return f.statut==='payee';}).reduce(function(s,f){return s+parseFloat(f.montant);},0);
+        var totalAttente = factures.filter(function(f){return f.statut==='en_attente';}).reduce(function(s,f){return s+parseFloat(f.montant);},0);
+
+        document.getElementById('total-montant').textContent = totalMontant.toFixed(2) + '€';
+        document.getElementById('total-paye').textContent = totalPaye.toFixed(2) + '€';
+        document.getElementById('total-attente').textContent = totalAttente.toFixed(2) + '€';
+
+        var zone = document.getElementById('liste-factures');
+        if (!factures.length) { zone.innerHTML = '<p style="font-size:13px;color:#3a6a99;">Aucune facture.</p>'; return; }
+
+        zone.innerHTML = factures.map(function(f, i) {
+            var num = 'FAC-2026-' + String(i+1).padStart(3,'0');
+            var date = new Date(f.date_facture).toLocaleDateString('fr-FR');
+            var isPaye = f.statut === 'payee';
+            return '<div style="padding:16px 0;border-bottom:1px solid var(--bleu-bordure);display:flex;justify-content:space-between;align-items:center;">'
+            + '<div>'
+            + '<div style="font-size:11px;color:var(--texte-leger);margin-bottom:3px;">' + num + '</div>'
+            + '<div style="font-size:17px;font-weight:700;color:var(--texte-titre);">' + parseFloat(f.montant).toFixed(2) + ' €</div>'
+            + '<div style="font-size:11px;color:var(--texte-leger);">Émise le ' + date + '</div>'
+            + '</div>'
+            + '<div style="display:flex;align-items:center;gap:12px;">'
+            + '<span class="statut-badge ' + (isPaye?'statut-payee':'statut-en-attente') + '">' + (isPaye?'Payée':'En attente') + '</span>'
+            + (!isPaye ? '<button class="btn-payer" onclick="ouvrirPaiement(' + f.id + ',' + f.montant + ')">💳 Payer</button>' : '')
+            + '<span style="font-size:11px;color:#1a6bbf;cursor:pointer;" onclick="telechargerPDF(\'' + num + '\',' + f.montant + ')">📄 PDF</span>'
+            + '</div>'
+            + '</div>';
+        }).join('');
+    };
+    xhr.send();
+};
+
+function ouvrirPaiement(id, montant) {
+    factureSelectionnee = id;
+    document.getElementById('modal-facture-info').innerHTML = '<strong>Montant à régler :</strong> <span style="font-size:16px;font-weight:700;color:#1a6bbf;">' + parseFloat(montant).toFixed(2) + ' €</span>';
+    document.getElementById('modal-paiement').classList.add('open');
+}
+
+function fermerModal() {
+    document.getElementById('modal-paiement').classList.remove('open');
+}
+
+function selectMethod(m) {
+    methodePaiement = m;
+    ['carte','virement','paypal'].forEach(function(b) {
+        document.getElementById('btn-'+b).classList.toggle('selected', b===m);
+    });
+    var infos = {
+        carte: '💳 Vous serez redirigé vers notre plateforme de paiement sécurisée CB.',
+        virement: '🏦 IBAN : FR76 XXXX XXXX XXXX XXXX XXXX XXX — Référence : votre numéro de facture.',
+        paypal: '🅿️ Vous serez redirigé vers PayPal pour finaliser le paiement.'
+    };
+    document.getElementById('paiement-form-info').textContent = infos[m];
+}
+
+function confirmerPaiement() {
+    if (!factureSelectionnee) return;
+    var btn = document.getElementById('btn-confirmer');
+    btn.textContent = 'Traitement en cours...';
+    btn.disabled = true;
+
+    var fd = new FormData();
+    fd.append('facture_id', factureSelectionnee);
+    fd.append('methode', methodePaiement);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost/aube-proprete/php/paiement.php');
+    xhr.onload = function() {
+        var data = JSON.parse(xhr.responseText);
+        fermerModal();
+        var zone = document.getElementById('paiement-message');
+        zone.innerHTML = '<div class="' + (data.succes?'auth-message-succes':'auth-message-erreur') + '">' + (data.succes?'✅':'❌') + ' ' + data.message + '</div>';
+        if (data.succes) setTimeout(function() { window.location.reload(); }, 2000);
+        btn.textContent = 'Confirmer le paiement';
+        btn.disabled = false;
+    };
+    xhr.send(fd);
+}
+
+function telechargerPDF(num, montant) {
+    alert('PDF de la facture ' + num + ' (' + parseFloat(montant).toFixed(2) + '€) — Fonctionnalité disponible en production.');
+}
 </script>
 </body>
 </html>

@@ -297,11 +297,19 @@ function renderContacts(contacts) {
     var statutColors = {nouveau:'statut-planifiee', lu:'statut-en-attente', traite:'statut-terminee'};
     document.getElementById('tbl-contacts').innerHTML = '<table class="admin-table"><thead><tr><th>Nom</th><th>Email</th><th>Tél</th><th>Prestation</th><th>Message</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead><tbody>'
     + contacts.map(function(c) {
+        var emailEncode = c.email.replace(/'/g, "\\'");
+        var nomEncode = c.nom.replace(/'/g, "\\'");
         return '<tr><td><strong>' + c.nom + '</strong></td><td>' + c.email + '</td><td>' + c.telephone + '</td><td>' + c.prestation + '</td><td style="max-width:150px;font-size:11px;">' + c.message.substring(0,80) + '...</td><td>' + new Date(c.date_envoi).toLocaleDateString('fr-FR') + '</td><td><span class="statut-badge ' + (statutColors[c.statut]||'') + '">' + c.statut + '</span></td><td style="display:flex;gap:4px;flex-wrap:wrap;">'
         + '<button class="btn-sm green" onclick="changerStatutContact(' + c.id + ',\'traite\')">✓ Traité</button>'
-        + '<button class="btn-sm blue" onclick="ouvrirRepondre(1,\'' + c.nom + '\')">💬 Répondre</button>'
+        + '<button class="btn-sm blue" onclick="ouvrirRepondreContact(\'' + emailEncode + '\',\'' + nomEncode + '\')">💬 Répondre</button>'
         + '</td></tr>';
     }).join('') + '</tbody></table>';
+}
+
+function ouvrirRepondreContact(email, nom) {
+    document.getElementById('repondre-client-id').value = 'email:' + email;
+    document.getElementById('repondre-client-nom').textContent = nom + ' (' + email + ')';
+    openModal('modal-repondre');
 }
 
 function renderMessages(messages) {
@@ -411,8 +419,20 @@ function adminAction(formData, callback) {
 document.getElementById('form-repondre').addEventListener('submit', function(e) {
     e.preventDefault();
     var fd = new FormData(this);
+    var clientVal = document.getElementById('repondre-client-id').value;
+    
+    if (clientVal.startsWith('email:')) {
+        // Contact sans compte → répondre par email
+        fd.set('action', 'repondre_contact');
+        fd.set('email', clientVal.replace('email:', ''));
+        fd.delete('client_id');
+    } else {
+        // Client avec compte → message espace client
+        fd.set('action', 'repondre_client');
+    }
+    
     adminAction(fd, function() {
-        document.getElementById('msg-repondre').innerHTML = '<div class="auth-message-succes" style="margin-top:8px;">Message envoyé !</div>';
+        document.getElementById('msg-repondre').innerHTML = '<div class="auth-message-succes" style="margin-top:8px;">✅ Message envoyé !</div>';
         setTimeout(function() { closeModal('modal-repondre'); chargerDonnees(); }, 1500);
     });
 });
