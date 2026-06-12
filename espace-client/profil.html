@@ -70,6 +70,54 @@
         </div>
     </main>
 </div>
+
+<!-- CHANGEMENT MOT DE PASSE -->
+<div class="dash-widget" style="max-width:600px;margin-top:20px;">
+    <div class="dash-widget-header">
+        <span class="dash-widget-title">🔑 Changer mon mot de passe</span>
+    </div>
+    <div class="dash-widget-body">
+        <div id="mdp-message"></div>
+        <form id="form-mdp" style="display:flex;flex-direction:column;gap:14px;">
+            <div class="form-group">
+                <label>Mot de passe actuel</label>
+                <input type="password" name="ancien_mdp" placeholder="Votre mot de passe actuel" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;font-family:inherit;" required />
+            </div>
+            <div class="form-group">
+                <label>Nouveau mot de passe</label>
+                <input type="password" name="nouveau_mdp" placeholder="Minimum 8 caractères" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;font-family:inherit;" required />
+            </div>
+            <div class="form-group">
+                <label>Confirmer le nouveau mot de passe</label>
+                <input type="password" name="confirmation" placeholder="Répétez le nouveau mot de passe" style="width:100%;background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius-small);padding:12px 16px;font-size:14px;font-family:inherit;" required />
+            </div>
+            <button type="submit" class="btn-auth">🔑 Modifier mon mot de passe</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-mdp').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var fd = new FormData(this);
+    var btn = this.querySelector('button');
+    btn.textContent = 'Modification...';
+    btn.disabled = true;
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost/aube-proprete/php/changer-mdp.php');
+    xhr.onload = function() {
+        var data = JSON.parse(xhr.responseText);
+        document.getElementById('mdp-message').innerHTML =
+            '<div class="auth-message-' + (data.succes?'succes':'erreur') + '" style="margin-bottom:12px;">'
+            + (data.succes?'✅':'❌') + ' ' + data.message + '</div>';
+        if (data.succes) document.getElementById('form-mdp').reset();
+        btn.textContent = 'Modifier mon mot de passe';
+        btn.disabled = false;
+    };
+    xhr.send(fd);
+});
+</script>
+
 <script>
 fetch('http://localhost/aube-proprete/php/get-dashboard.php')
 .then(r => r.json())

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Bloquer les zones privées
+Disallow: /admin/
+Disallow: /espace-client/
+Disallow: /php/
+
+# Sitemap
+Sitemap: http://localhost/aube-proprete/sitemap.xml
