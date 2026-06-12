@@ -31,6 +31,18 @@
                 <a href="../php/logout.php" style="font-size:13px;color:#e74c3c;">Déconnexion</a>
             </div>
         </div>
+        <!-- VUE CALENDRIER SIMPLIFIÉE -->
+        <div class="dash-widget" style="margin-bottom:20px;">
+            <div class="dash-widget-header">
+                <span class="dash-widget-title">📅 Calendrier de mes interventions</span>
+                <button onclick="toggleCalendrier()" style="font-size:12px;color:var(--bleu-moyen);background:none;border:none;cursor:pointer;">Afficher/Masquer</button>
+            </div>
+            <div class="dash-widget-body" id="calendrier-zone">
+                <div id="calendrier-content" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;text-align:center;">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
+        </div>
         <div class="dashboard-content">
             <div class="dash-widget">
                 <div class="dash-widget-header">
@@ -119,6 +131,47 @@ function noterIntervention(id, note) {
     };
     xhr.send();
 })();
+function toggleCalendrier() {
+    var zone = document.getElementById('calendrier-content');
+    zone.style.display = zone.style.display === 'none' ? 'grid' : 'none';
+}
+
+function genererCalendrier(interventions) {
+    var now = new Date();
+    var annee = now.getFullYear();
+    var mois = now.getMonth();
+    var jours = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+    var premier = new Date(annee, mois, 1).getDay();
+    var nbJours = new Date(annee, mois+1, 0).getDate();
+    premier = premier === 0 ? 6 : premier - 1;
+
+    var moisNom = new Date(annee, mois).toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+    var rdvJours = {};
+    interventions.forEach(function(i) {
+        var d = new Date(i.date_intervention);
+        if (d.getFullYear() === annee && d.getMonth() === mois) {
+            rdvJours[d.getDate()] = i.statut;
+        }
+    });
+
+    var html = '<div style="grid-column:1/-1;text-align:center;font-weight:600;color:var(--texte-titre);padding:8px 0;font-size:13px;">' + moisNom + '</div>';
+    jours.forEach(function(j) {
+        html += '<div style="font-weight:600;color:var(--texte-corps);padding:4px 0;">' + j + '</div>';
+    });
+    for (var i = 0; i < premier; i++) html += '<div></div>';
+    for (var d = 1; d <= nbJours; d++) {
+        var isToday = d === now.getDate();
+        var hasRdv = rdvJours[d];
+        var style = 'padding:6px 2px;border-radius:6px;';
+        if (isToday) style += 'background:var(--bleu-moyen);color:#fff;font-weight:600;';
+        else if (hasRdv) {
+            var col = hasRdv === 'terminee' ? '#e1f5ee' : '#cce4ff';
+            style += 'background:' + col + ';font-weight:600;';
+        }
+        html += '<div style="' + style + '" title="' + (hasRdv ? 'Intervention ' + hasRdv : '') + '">' + d + (hasRdv ? '•' : '') + '</div>';
+    }
+    document.getElementById('calendrier-content').innerHTML = html;
+}
 </script>
 </body>
 </html>

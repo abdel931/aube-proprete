@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="L'équipe Aube Propreté Services — Professionnels du nettoyage en Île-de-France" />
+    <title>Notre équipe — Aube Propreté Services</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+    .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:960px;margin:0 auto;}
+    .team-card{background:#fff;border:1px solid var(--bleu-bordure);border-radius:var(--radius-large);overflow:hidden;text-align:center;transition:var(--transition);}
+    .team-card:hover{transform:translateY(-6px);box-shadow:var(--ombre-forte);}
+    .team-photo{height:180px;background:var(--bleu-bordure);display:flex;align-items:center;justify-content:center;font-size:56px;}
+    .team-body{padding:20px;}
+    .team-name{font-size:16px;font-weight:600;color:var(--texte-titre);margin-bottom:4px;}
+    .team-role{font-size:12px;font-weight:500;background:var(--bleu-clair);color:var(--bleu-moyen);padding:3px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;}
+    .team-bio{font-size:13px;color:var(--texte-corps);line-height:1.6;}
+    .team-social{display:flex;gap:8px;justify-content:center;margin-top:12px;}
+    .team-social a{width:32px;height:32px;background:var(--bleu-clair);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;transition:var(--transition);}
+    .team-social a:hover{background:var(--bleu-moyen);}
+    .value-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:960px;margin:0 auto;}
+    .value-card{background:var(--bleu-tres-clair);border:1px solid var(--bleu-bordure);border-radius:var(--radius);padding:24px;text-align:center;}
+    .value-icon{font-size:36px;margin-bottom:12px;}
+    .value-title{font-size:14px;font-weight:600;color:var(--texte-titre);margin-bottom:6px;}
+    .value-desc{font-size:12px;color:var(--texte-corps);line-height:1.6;}
+    .timeline{max-width:700px;margin:0 auto;position:relative;}
+    .timeline::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--bleu-bordure);transform:translateX(-50%);}
+    .timeline-item{display:flex;gap:24px;margin-bottom:32px;align-items:flex-start;}
+    .timeline-item:nth-child(odd){flex-direction:row-reverse;}
+    .timeline-content{flex:1;background:#fff;border:1px solid var(--bleu-bordure);border-radius:var(--radius);padding:16px;}
+    .timeline-year{width:60px;height:60px;background:var(--bleu-moyen);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;z-index:1;}
+    .timeline-title{font-size:14px;font-weight:600;color:var(--texte-titre);margin-bottom:4px;}
+    .timeline-desc{font-size:12px;color:var(--texte-corps);line-height:1.6;}
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="topbar">
+            <div class="topbar-left">
+                <span>📞 01 XX XX XX XX</span>
+                <span>✉️ contact@aube-proprete.fr</span>
+            </div>
+            <div class="topbar-right">
+                <a href="/aube-proprete/espace-client/login.html">Espace client</a>
+            </div>
+        </div>
+        <nav class="navbar">
+            <div class="navbar-logo">
+                <span class="logo-icon">💧</span>
+                <span class="logo-text">Aube <strong>Propreté</strong> Services</span>
+            </div>
+            <ul class="navbar-links">
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="equipe.html" style="color:#fff;font-weight:600;">Notre équipe</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="recrutement.html">Recrutement</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <button class="burger" id="burger"><span></span><span></span><span></span></button>
+            <a href="index.html#contact" class="btn-devis">Devis gratuit</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- HERO -->
+        <section style="background:var(--bleu-moyen);padding:60px 40px;text-align:center;">
+            <span style="display:inline-block;background:rgba(255,255,255,0.15);color:#fff;font-size:11px;padding:4px 16px;border-radius:20px;margin-bottom:14px;">👥 Notre équipe</span>
+            <h1 style="font-size:30px;color:#fff;font-weight:600;margin-bottom:10px;">Des professionnels à votre service</h1>
+            <p style="color:#cce4ff;font-size:14px;max-width:520px;margin:0 auto;">Une équipe de plus de 50 collaborateurs formés, certifiés et passionnés par leur métier.</p>
+        </section>
+
+        <!-- STATS ÉQUIPE -->
+        <section style="background:#0f4e99;padding:20px 40px;">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:800px;margin:0 auto;text-align:center;">
+                <div><div style="font-size:24px;font-weight:700;color:#fff;">+50</div><div style="font-size:11px;color:#7ab8e8;">Collaborateurs</div></div>
+                <div><div style="font-size:24px;font-weight:700;color:#fff;">100%</div><div style="font-size:11px;color:#7ab8e8;">Formés et certifiés</div></div>
+                <div><div style="font-size:24px;font-weight:700;color:#fff;">8</div><div style="font-size:11px;color:#7ab8e8;">Chefs d'équipe</div></div>
+                <div><div style="font-size:24px;font-weight:700;color:#fff;">10 ans</div><div style="font-size:11px;color:#7ab8e8;">D'expérience moyenne</div></div>
+            </div>
+        </section>
+
+        <!-- ÉQUIPE DIRECTION -->
+        <section style="padding:60px 40px;background:var(--bleu-clair);">
+            <div style="text-align:center;margin-bottom:40px;">
+                <span class="section-tag">Direction</span>
+                <h2 class="section-title">L'équipe dirigeante</h2>
+            </div>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-photo">👨‍💼</div>
+                    <div class="team-body">
+                        <div class="team-name">Mohammed A.</div>
+                        <div class="team-role">Directeur Général</div>
+                        <div class="team-bio">Fondateur d'Aube Propreté Services en 2014. 20 ans d'expérience dans le secteur de la propreté professionnelle en Île-de-France.</div>
+                        <div class="team-social">
+                            <a href="#" title="LinkedIn">💼</a>
+                            <a href="#" title="Email">✉️</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-photo">👩‍💼</div>
+                    <div class="team-body">
+                        <div class="team-name">Fatima B.</div>
+                        <div class="team-role">Directrice des Opérations</div>
+                        <div class="team-bio">Responsable de la coordination de toutes les interventions en IDF. Certifiée Qualipropre et ISO 9001 depuis 2018.</div>
+                        <div class="team-social">
+                            <a href="#" title="LinkedIn">💼</a>
+                            <a href="#" title="Email">✉️</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-photo">👨‍💻</div>
+                    <div class="team-body">
+                        <div class="team-name">Karim D.</div>
+                        <div class="team-role">Responsable Commercial</div>
+                        <div class="team-bio">En charge du développement commercial et des partenariats. Spécialiste grands comptes et appels d'offres publics.</div>
+                        <div class="team-social">
+                            <a href="#" title="LinkedIn">💼</a>
+                            <a href="#" title="Email">✉️</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOS VALEURS -->
+        <section style="padding:60px 40px;background:var(--bleu-tres-clair);">
+            <div style="text-align:center;margin-bottom:40px;">
+                <span class="section-tag">Nos valeurs</span>
+                <h2 class="section-title">Ce qui nous définit</h2>
+            </div>
+            <div class="value-grid">
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <div class="value-title">Confiance</div>
+                    <div class="value-desc">Personnel vérifié, assuré et formé. Votre confiance est notre priorité absolue.</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🌿</div>
+                    <div class="value-title">Écologie</div>
+                    <div class="value-desc">Produits certifiés NF Environnement. Nous protégeons votre santé et la planète.</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">⭐</div>
+                    <div class="value-title">Excellence</div>
+                    <div class="value-desc">98% de satisfaction client. Nous visons la perfection à chaque intervention.</div>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">❤️</div>
+                    <div class="value-title">Humain</div>
+                    <div class="value-desc">Entreprise familiale ancrée en IDF depuis 2014. Nos collaborateurs sont notre force.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HISTORIQUE -->
+        <section style="padding:60px 40px;background:var(--bleu-clair);">
+            <div style="text-align:center;margin-bottom:40px;">
+                <span class="section-tag">Notre histoire</span>
+                <h2 class="section-title">10 ans d'évolution</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">2014</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">🚀 Création de l'entreprise</div>
+                        <div class="timeline-desc">Fondation d'Aube Propreté Services à Montreuil avec 3 collaborateurs et une vingtaine de clients particuliers.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2016</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">📈 Expansion aux entreprises</div>
+                        <div class="timeline-desc">Développement de l'activité B2B. Premiers contrats avec des PME parisiennes. L'équipe passe à 15 collaborateurs.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2018</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">🏆 Certifications ISO & Qualipropre</div>
+                        <div class="timeline-desc">Obtention de la certification ISO 9001 et du label Qualipropre. Reconnaissance officielle de notre excellence opérationnelle.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2021</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">🌿 Transition écologique</div>
+                        <div class="timeline-desc">100% de nos produits passent à des gammes certifiées NF Environnement. Flotte de véhicules partiellement électriques.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">💻 Espace client digital</div>
+                        <div class="timeline-desc">Lancement de notre plateforme digitale. Les clients gèrent leurs interventions, factures et RDV en ligne 24h/24.</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2026</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">🎯 Objectif : leader IDF</div>
+                        <div class="timeline-desc">+500 clients, +50 collaborateurs. Objectif d'atteindre 1000 clients d'ici fin 2027 sur toute l'Île-de-France.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section style="background:var(--bleu-moyen);padding:50px 40px;text-align:center;">
+            <h2 style="font-size:24px;color:#fff;margin-bottom:10px;">Rejoignez notre équipe !</h2>
+            <p style="color:#a8d8ff;font-size:14px;margin-bottom:24px;">Nous recrutons en CDI — Formation assurée — Véhicule de service</p>
+            <a href="/aube-proprete/recrutement.html" class="btn-white" style="background:#fff;color:var(--bleu-moyen);font-size:14px;font-weight:600;padding:12px 28px;border-radius:7px;text-decoration:none;">Voir les offres d'emploi</a>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2026 Aube Propreté Services — Tous droits réservés</p>
+            <div class="footer-legal">
+                <a href="mentions-legales.html">Mentions légales</a>
+                <a href="confidentialite.html">Confidentialité</a>
+                <a href="cgv.html">CGV</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
